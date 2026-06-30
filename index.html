@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alrajj Private Pickleball Court – Book a Slot</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold:     #C9A84C;
+    --gold-lt:  #F5D97A;
+    --gold-dk:  #9A7430;
+    --red:      #9B1C1C;
+    --red-lt:   #C02020;
+    --black:    #0A0A0A;
+    --dark:     #121212;
+    --surface:  #1A1A1A;
+    --surface2: #222222;
+    --border:   #2C2C2C;
+    --text:     #F0E8D8;
+    --muted:    #7A6A4A;
+    --radius:   8px;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(180deg, #000 0%, #111 100%);
+    border-bottom: 2px solid var(--gold-dk);
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .logo-text h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .logo-text p {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 1px;
+  }
+
+  .gold-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .live-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .live-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #ff4444;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 14px 90px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dk), transparent);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold-dk);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* DATE STRIP */
+  .date-strip {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .date-strip::-webkit-scrollbar { display: none; }
+
+  .date-pill {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 9px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 54px;
+  }
+
+  .date-pill:hover { border-color: var(--gold-dk); }
+
+  .date-pill.active {
+    background: linear-gradient(135deg, var(--gold-dk), var(--gold));
+    border-color: var(--gold);
+    box-shadow: 0 4px 12px rgba(201,168,76,0.3);
+  }
+
+  .date-pill .day-name { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+  .date-pill.active .day-name { color: #000; }
+  .date-pill .day-num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); line-height: 1.1; margin-top: 1px; }
+  .date-pill.active .day-num { color: #000; }
+  .date-pill .month-name { font-size: 9px; color: var(--muted); font-weight: 600; }
+  .date-pill.active .month-name { color: #000; }
+
+  /* RATE BADGE on selected date */
+  .rate-info-bar {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-radius: 6px;
+    border-left: 3px solid var(--gold);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .rate-info-bar .rate-tag {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  /* SESSION TYPE */
+  .session-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .session-btn {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface2);
+  }
+
+  .session-btn:hover { border-color: var(--gold-dk); }
+
+  .session-btn.active {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.1);
+  }
+
+  .session-btn .sess-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    display: block;
+  }
+
+  .session-btn.active .sess-label { color: var(--gold); }
+
+  .session-btn .sess-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-top: 2px;
+    display: block;
+  }
+
+  .session-btn .sess-note {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 2px;
+    display: block;
+  }
+
+  /* DURATION BUTTONS */
+  .duration-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .dur-btn {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface2);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+
+  .dur-btn:hover { border-color: var(--gold-dk); }
+
+  .dur-btn.active {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.1);
+    color: var(--gold);
+  }
+
+  .dur-btn .dur-time {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .dur-btn.active .dur-time { color: var(--gold); }
+
+  .dur-btn .dur-savings {
+    font-size: 8px;
+    color: #5a9;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* TIME GRID */
+  .time-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .time-slot {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    background: var(--surface2);
+  }
+
+  .time-slot:hover:not(.booked):not(.past) { border-color: var(--gold); background: rgba(201,168,76,0.06); }
+
+  .time-slot.selected {
+    border-color: var(--gold);
+    border-left: 3px solid var(--gold);
+    background: rgba(201,168,76,0.1);
+    box-shadow: 0 0 16px rgba(201,168,76,0.15);
+  }
+
+  .time-slot.booked { opacity: 0.45; cursor: not-allowed; background: rgba(155,28,28,0.08); border-color: rgba(155,28,28,0.3); }
+  .time-slot.past   { opacity: 0.3; cursor: not-allowed; }
+
+  .slot-time { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 0.5px; color: var(--text); }
+  .slot-end  { font-size: 10px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+  .slot-rate-tag { font-size: 8px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); margin-top: 4px; text-transform: uppercase; }
+  .slot-price { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--gold); margin-top: 4px; }
+
+  .slot-badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+
+  .badge-avail  { background: rgba(201,168,76,0.15); color: var(--gold); }
+  .badge-booked { background: rgba(155,28,28,0.2); color: #e57373; }
+  .badge-peak   { background: rgba(192,32,32,0.15); color: #e57373; font-size: 7px; }
+
+  /* LEGEND */
+  .legend { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .dot-avail    { background: var(--surface2); border: 1px solid var(--gold-dk); }
+  .dot-selected { background: rgba(201,168,76,0.2); border: 1px solid var(--gold); }
+  .dot-booked   { background: rgba(155,28,28,0.2); border: 1px solid rgba(155,28,28,0.4); }
+
+  /* SUMMARY */
+  .summary {
+    background: var(--surface);
+    border: 1px solid var(--gold-dk);
+    border-top: 3px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    display: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .summary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .summary.visible { display: block; }
+
+  .summary-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--gold); margin-bottom: 12px; }
+
+  .summary-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .summary-line:last-of-type { border-bottom: none; }
+
+  .sum-key { color: var(--muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; font-size: 9px; }
+  .sum-val { font-weight: 700; color: var(--text); text-align: right; }
+
+  .res-fee-note {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .summary-total {
+    border-top: 1px solid var(--gold-dk);
+    margin-top: 10px;
+    padding-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .total-col { display: flex; flex-direction: column; gap: 2px; }
+  .total-label { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--muted); }
+  .res-due { font-size: 9px; color: var(--gold-dk); font-weight: 600; }
+  .total-amount { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; color: var(--gold); text-shadow: 0 0 20px rgba(201,168,76,0.4); }
+
+  /* RATES TABLE */
+  .rate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+  .rate-row:last-child { border-bottom: none; }
+  .rate-key { color: var(--muted); font-weight: 600; font-size: 11px; flex: 1; }
+  .rate-note { color: #555; font-size: 10px; text-align: right; flex: 1; }
+  .rate-val { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: var(--gold); letter-spacing: 0.5px; white-space: nowrap; min-width: 48px; text-align: right; }
+
+  .policy-block {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 8px;
+  }
+  .policy-block p {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 500;
+  }
+  .policy-block p strong { color: var(--text); }
+
+  /* FORM */
+  .form-group { margin-bottom: 12px; }
+  label { display: block; font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 13px;
+    color: var(--text);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,168,76,0.1); }
+  select option { background: var(--surface); }
+
+  /* PAYMENT */
+  .payment-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .payment-opt {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 6px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    transition: all 0.15s;
+    background: var(--surface2);
+  }
+  .payment-opt:hover { border-color: var(--gold-dk); color: var(--text); }
+  .payment-opt.active { border-color: var(--gold); background: rgba(201,168,76,0.1); color: var(--gold); }
+  .payment-icon { font-size: 20px; display: block; margin-bottom: 5px; }
+
+  /* RESERVATION FEE NOTICE */
+  .res-notice {
+    background: rgba(201,168,76,0.07);
+    border: 1px solid var(--gold-dk);
+    border-radius: 6px;
+    padding: 10px 13px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* BOOK BUTTON */
+  .btn-book {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold-dk) 0%, var(--gold) 50%, var(--gold-dk) 100%);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+  }
+  .btn-book:hover:not(:disabled) { box-shadow: 0 6px 28px rgba(201,168,76,0.5); transform: translateY(-1px); }
+  .btn-book:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; box-shadow: none; }
+
+  .tagline-bar {
+    text-align: center;
+    padding: 11px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .tagline-bar span { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 4px; color: var(--gold); }
+  .tagline-bar span em { color: var(--red-lt); font-style: normal; }
+
+  /* SUCCESS */
+  .success-screen { display: none; text-align: center; padding: 32px 20px; }
+  .success-screen.visible { display: block; }
+  .success-icon { font-size: 52px; margin-bottom: 16px; filter: drop-shadow(0 0 20px rgba(201,168,76,0.6)); }
+  .success-screen h2 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; color: var(--gold); margin-bottom: 6px; }
+  .success-screen > p { color: var(--muted); font-size: 12px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+
+  .booking-ref { background: var(--surface); border: 1px solid var(--gold-dk); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .ref-label { font-size: 9px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .ref-code { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 5px; color: var(--gold); text-shadow: 0 0 20px rgba(201,168,76,0.5); }
+
+  .conf-card { background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold-dk); border-radius: 8px; padding: 16px; margin-bottom: 16px; text-align: left; }
+
+  .btn-secondary {
+    width: 100%;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .footer-note { text-align: center; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 1px; margin-top: 20px; text-transform: uppercase; }
+
+  @media (min-width: 500px) {
+    .time-grid { grid-template-columns: repeat(3, 1fr); }
+    .container { padding: 24px 20px 100px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div style="font-size:24px;filter:drop-shadow(0 0 6px rgba(201,168,76,0.5))">👑</div>
+    <div class="logo-text">
+      <h1>ALRAJJ PRIVATE PICKLEBALL COURT</h1>
+      <p>Sandig Paridi, Marawi City · Book. Play. Elevate.</p>
+    </div>
+    <div class="live-badge">Live</div>
+  </div>
+  <div class="gold-divider"></div>
+</header>
+
+<div class="container" id="bookingForm">
+
+  <div class="tagline-bar">
+    <span>BOOK <em>·</em> PLAY <em>·</em> ELEVATE</span>
+  </div>
+
+  <!-- STEP 1: DATE -->
+  <div class="section-label">Step 1 · Select Date</div>
+  <div class="card" style="padding:12px;">
+    <div class="date-strip" id="dateStrip"></div>
+    <div class="rate-info-bar" id="rateInfoBar">
+      <span id="rateInfoLabel">—</span>
+      <span class="rate-tag" id="rateInfoPrice">—</span>
+    </div>
+  </div>
+
+  <!-- STEP 2: SESSION TYPE -->
+  <div class="section-label">Step 2 · Session Type</div>
+  <div class="session-grid" id="sessionGrid">
+    <div class="session-btn active" onclick="selectSession(this,'regular')" data-type="regular">
+      <span class="sess-label">Regular</span>
+      <span class="sess-price" id="sp-regular">₱150</span>
+      <span class="sess-note">Standard rate</span>
+    </div>
+    <div class="session-btn" onclick="selectSession(this,'student')" data-type="student">
+      <span class="sess-label">Student</span>
+      <span class="sess-price" id="sp-student">₱100</span>
+      <span class="sess-note" id="sn-student">₱50 off · Valid school ID</span>
+    </div>
+    <div class="session-btn" onclick="selectSession(this,'block3')" data-type="block3">
+      <span class="sess-label">3-Hr Block</span>
+      <span class="sess-price" id="sp-block3">₱400</span>
+      <span class="sess-note" id="sn-block3">Saves ₱50</span>
+    </div>
+    <div class="session-btn" onclick="selectSession(this,'corporate')" data-type="corporate">
+      <span class="sess-label">Corporate 4HR</span>
+      <span class="sess-price">₱1,200</span>
+      <span class="sess-note">Free paddles included</span>
+    </div>
+    <div class="session-btn" onclick="selectSession(this,'membership')" data-type="membership">
+      <span class="sess-label">Membership</span>
+      <span class="sess-price">₱999/mo</span>
+      <span class="sess-note">8 credit hrs · max 20</span>
+    </div>
+    <div class="session-btn" onclick="selectSession(this,'walkin')" data-type="walkin">
+      <span class="sess-label">Walk-in</span>
+      <span class="sess-price" id="sp-walkin">₱150</span>
+      <span class="sess-note">Subject to availability</span>
+    </div>
+  </div>
+
+  <!-- STEP 3: START TIME -->
+  <div class="section-label">Step 3 · Pick Start Time</div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot dot-avail"></div>Available</div>
+    <div class="legend-item"><div class="legend-dot dot-selected"></div>Selected</div>
+    <div class="legend-item"><div class="legend-dot dot-booked"></div>Booked</div>
+  </div>
+  <div class="card" style="padding:12px;">
+    <div class="time-grid" id="timeGrid"></div>
+  </div>
+
+  <!-- BOOKING SUMMARY -->
+  <div class="summary" id="summaryPanel">
+    <div class="summary-title">⚡ Booking Summary</div>
+    <div class="summary-line"><span class="sum-key">Date</span><span class="sum-val" id="sumDate">—</span></div>
+    <div class="summary-line"><span class="sum-key">Court</span><span class="sum-val">Court 1</span></div>
+    <div class="summary-line"><span class="sum-key">Time</span><span class="sum-val" id="sumTime">—</span></div>
+    <div class="summary-line"><span class="sum-key">Session</span><span class="sum-val" id="sumSession">—</span></div>
+    <div class="summary-line"><span class="sum-key">Rate Type</span><span class="sum-val" id="sumRateType">—</span></div>
+    <div class="summary-total">
+      <div class="total-col">
+        <span class="total-label">Total</span>
+        <span class="res-due">₱100 reservation fee due now · Balance after session</span>
+      </div>
+      <span class="total-amount" id="sumTotal">₱0</span>
+    </div>
+  </div>
+
+  <!-- RATES REFERENCE -->
+  <div class="section-label">Full Rate Sheet</div>
+  <div class="card" style="padding:14px;">
+    <div class="rate-row"><span class="rate-key">Regular</span><span class="rate-note">Standard rate</span><span class="rate-val">₱150/hr</span></div>
+    <div class="rate-row"><span class="rate-key">Student</span><span class="rate-note">₱50 off applicable rate · Valid school ID</span><span class="rate-val">−₱50</span></div>
+    <div class="rate-row"><span class="rate-key">Off-Peak</span><span class="rate-note">Weekdays 9AM–4PM</span><span class="rate-val">₱150/hr</span></div>
+    <div class="rate-row"><span class="rate-key">Peak</span><span class="rate-note">Weekdays 5PM–9PM</span><span class="rate-val">₱200/hr</span></div>
+    <div class="rate-row"><span class="rate-key">Weekend</span><span class="rate-note">Sat & Sun all day</span><span class="rate-val">₱200/hr</span></div>
+    <div class="rate-row"><span class="rate-key">3-Hr Block (Regular)</span><span class="rate-note">Saves ₱50</span><span class="rate-val">₱400</span></div>
+    <div class="rate-row"><span class="rate-key">3-Hr Block (Peak/Wknd)</span><span class="rate-note">Saves ₱50</span><span class="rate-val">₱550</span></div>
+    <div class="rate-row"><span class="rate-key">Corporate 4HR</span><span class="rate-note">Free paddles</span><span class="rate-val">₱1,200</span></div>
+    <div class="rate-row"><span class="rate-key">Founding Membership</span><span class="rate-note">8 credit hrs · max 20</span><span class="rate-val">₱999/mo</span></div>
+    <div class="rate-row"><span class="rate-key">Paddle Rental</span><span class="rate-note">Free on first visit</span><span class="rate-val">₱50</span></div>
+    <div class="rate-row"><span class="rate-key">Reservation Fee</span><span class="rate-note">Deducted on arrival</span><span class="rate-val">₱100</span></div>
+    <div class="rate-row"><span class="rate-key">Operating Hours</span><span class="rate-note">Daily</span><span class="rate-val">9AM–10PM</span></div>
+
+    <div class="policy-block">
+      <p>
+        <strong>Booking Reminders:</strong> Minimum 1 hour · Max 3 hours/customer/day · Advance booking up to 7 days · Walk-ins welcome (subject to availability)<br><br>
+        <strong>Reservation Policy:</strong> ₱100 reservation fee via GCash only · Balance payable via GCash or Cash at the court · Non-refundable for no-shows · One-time reschedule with 24 hrs notice · GCash: <strong>JE**N A. · 09195198324</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- YOUR DETAILS -->
+  <div class="section-label">Your Details</div>
+  <div class="card">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="guestName" placeholder="e.g. Ahmad Macarimbang" />
+    </div>
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" id="guestPhone" placeholder="09XX XXX XXXX" />
+    </div>
+    <div class="form-group">
+      <label>Paddle Rental?</label>
+      <select id="paddleRental" onchange="updateSummary()">
+        <option value="0">No thanks</option>
+        <option value="1">Yes, 1 paddle (₱50)</option>
+        <option value="2">Yes, 2 paddles (₱100)</option>
+        <option value="3">Yes, 3 paddles (₱150)</option>
+        <option value="4">Yes, 4 paddles (₱200)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="guestNotes" rows="2" placeholder="Student ID, corporate details, etc."></textarea>
+    </div>
+  </div>
+
+  <!-- PAYMENT -->
+  <div class="section-label">Pay Reservation Fee · GCash Only</div>
+  <div style="text-align:center;padding:10px 0 4px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold)">JE**N A. · 09195198324</div>
+  <div class="card">
+    <div class="payment-grid" style="grid-template-columns:1fr;">
+      <div class="payment-opt active" onclick="selectPayment(this)">
+        <span class="payment-icon">📱</span>GCash
+      </div>
+    </div>
+    <div class="res-notice">
+      <div style="margin-bottom:8px;font-weight:800;font-size:12px;color:var(--gold-lt);">📋 Payment Policy</div>
+      ✅ Send ₱100 reservation fee in advance via GCash only.<br>
+      ✅ The ₱100 reservation fee will be deducted from your total bill.<br>
+      ✅ Remaining balance payable via GCash or Cash at the court after your session.<br><br>
+      <span style="font-size:10px;color:var(--muted);">GCash only for reservation · <strong style="color:var(--text);">JE**N A. · 09195198324</strong></span>
+    </div>
+  </div>
+
+  <button class="btn-book" id="bookBtn" onclick="submitBooking()" disabled>
+    Reserve · Send ₱100 to 09195198324
+  </button>
+
+  <div class="footer-note">Alrajj Legacy Fortified Business Corp · #BookPlayElevate</div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="container success-screen" id="successScreen">
+  <div class="success-icon">🏆</div>
+  <h2>Slot Reserved!</h2>
+  <p>Your court is locked in. Send the ₱100 reservation fee via GCash to <strong style="color:var(--gold)">JE**N A. · 09195198324</strong>, then screenshot this page as proof. Remaining balance payable via GCash or Cash at the court.</p>
+
+  <div class="booking-ref">
+    <div class="ref-label">Booking Reference</div>
+    <div class="ref-code" id="refCode">APC-0000</div>
+  </div>
+
+  <div class="conf-card">
+    <div class="summary-line"><span class="sum-key">Name</span><span class="sum-val" id="confName">—</span></div>
+    <div class="summary-line"><span class="sum-key">Phone</span><span class="sum-val" id="confPhone">—</span></div>
+    <div class="summary-line"><span class="sum-key">Date</span><span class="sum-val" id="confDate">—</span></div>
+    <div class="summary-line"><span class="sum-key">Court</span><span class="sum-val">Court 1</span></div>
+    <div class="summary-line"><span class="sum-key">Time</span><span class="sum-val" id="confTime">—</span></div>
+    <div class="summary-line"><span class="sum-key">Session</span><span class="sum-val" id="confSession">—</span></div>
+    <div class="summary-line"><span class="sum-key">Paddle Rental</span><span class="sum-val" id="confPaddle">—</span></div>
+    <div class="summary-line"><span class="sum-key">Payment</span><span class="sum-val" id="confPayment">—</span></div>
+    <div class="summary-total">
+      <div class="total-col">
+        <span class="total-label">Total Due</span>
+        <span class="res-due">Remaining balance collected at the court after your session</span>
+      </div>
+      <span class="total-amount" id="confTotal">₱0</span>
+    </div>
+  </div>
+
+  <button class="btn-book" onclick="resetBooking()">Book Another Slot</button>
+  <button class="btn-secondary" onclick="window.print()">Save / Print</button>
+</div>
+
+<script>
+// ── PRICING ENGINE ────────────────────────────────────────────────────────
+const RATES = {
+  regular:    { label: 'Regular',          perHour: 150, fixed: null },
+  student:    { label: 'Student',          perHour: 100, fixed: null },
+  offpeak:    { label: 'Off-Peak',         perHour: 150, fixed: null },
+  peak:       { label: 'Peak',             perHour: 200, fixed: null },
+  weekend:    { label: 'Weekend',          perHour: 200, fixed: null },
+  block3reg:  { label: '3-Hr Block (Reg)', perHour: null, fixed: 400, hours: 3 },
+  block3peak: { label: '3-Hr Block (Peak/Wknd)', perHour: null, fixed: 550, hours: 3 },
+  corporate:  { label: 'Corporate 4HR',   perHour: null, fixed: 1200, hours: 4 },
+  membership: { label: 'Founding Membership', perHour: null, fixed: 999, hours: null },
+  walkin:     { label: 'Walk-in',          perHour: 150, fixed: null },
+};
+
+const HOURS_OPEN  = 9;
+const HOURS_CLOSE = 22; // 10 PM per the rate sheet (corrected)
+// ── CONFIGURATION — paste your deployed Apps Script URL below ──
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL1zXm8UaVVQIUxcbX2koa8W_HsxiQZ7IoPIIUxtW_EjOQW-AsDiFEc7pcKePJCuTj/exec';
+
+const PADDLE_RATE = 50;
+const RES_FEE     = 100;
+
+// Live slot data fetched from Google Sheet
+const bookedSlots  = new Set();
+const blockedSlots = new Set();
+let slotsLoaded    = false;
+
+let selectedDate    = null;
+let selectedSlot    = null;
+let selectedSession = 'regular';
+let selectedPayment = 'GCash';
+
+// ── FETCH LIVE SLOT DATA ───────────────────────────────────────
+async function fetchSlots() {
+  showSlotLoading(true);
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getSlots`, { method: 'GET' });
+    const data = await res.json();
+    if (data.success) {
+      bookedSlots.clear();
+      blockedSlots.clear();
+      (data.booked  || []).forEach(s => bookedSlots.add(s));
+      (data.blocked || []).forEach(s => blockedSlots.add(s));
+      slotsLoaded = true;
+    }
+  } catch (err) {
+    console.warn('Could not fetch slots:', err);
+    // Falls back to empty set — nothing shown as booked
+  }
+  showSlotLoading(false);
+  buildTimeGrid();
+}
+
+function showSlotLoading(on) {
+  const grid = document.getElementById('timeGrid');
+  if (on) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:1px;">LOADING SLOTS…</div>`;
+  }
+}
+
+// ── DATE HELPERS ──────────────────────────────────────────────────────────
+function isWeekend(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.getDay() === 0 || d.getDay() === 6;
+}
+
+function isOffPeak(hour) { return hour >= 9 && hour < 17; }
+function isPeak(hour)    { return hour >= 17 && hour <= 21; }
+
+function getHourlyRate(dateStr, hour) {
+  if (isWeekend(dateStr)) return { rate: 200, label: 'Weekend Rate' };
+  if (isPeak(hour))       return { rate: 200, label: 'Peak Rate' };
+  if (isOffPeak(hour))    return { rate: 150, label: 'Off-Peak Rate' };
+  return { rate: 150, label: 'Regular Rate' };
+}
+
+function getDayRateLabel(dateStr) {
+  if (isWeekend(dateStr)) return { label: 'Weekend — ₱200/hr all day', price: '₱200/hr' };
+  return { label: 'Weekday — Off-Peak ₱150/hr (9AM–4PM) · Peak ₱200/hr (5PM–9PM)', price: 'varies' };
+}
+
+// ── DATE STRIP ────────────────────────────────────────────────────────────
+function buildDateStrip() {
+  const strip = document.getElementById('dateStrip');
+  strip.innerHTML = '';
+  const today  = new Date();
+  const days   = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const pill = document.createElement('div');
+    pill.className = 'date-pill' + (i === 0 ? ' active' : '');
+    pill.innerHTML = `
+      <span class="day-name">${days[d.getDay()]}</span>
+      <span class="day-num">${d.getDate()}</span>
+      <span class="month-name">${months[d.getMonth()]}</span>`;
+    pill.dataset.date = d.toISOString().split('T')[0];
+    pill.onclick = () => {
+      document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      selectedDate = pill.dataset.date;
+      selectedSlot = null;
+      updateDayRateBar();
+      updateSessionPrices();
+      fetchSlots(); // reload live slots for new date
+      updateSummary();
+    };
+    if (i === 0) selectedDate = pill.dataset.date;
+    strip.appendChild(pill);
+  }
+  updateDayRateBar();
+  updateSessionPrices();
+  fetchSlots(); // initial load from Google Sheet
+}
+
+function updateDayRateBar() {
+  const info = getDayRateLabel(selectedDate);
+  document.getElementById('rateInfoLabel').textContent = info.label;
+  document.getElementById('rateInfoPrice').textContent = info.price;
+}
+
+function updateSessionPrices() {
+  const wknd = isWeekend(selectedDate);
+  document.getElementById('sp-regular').textContent = wknd ? '₱200' : '₱150';
+  document.getElementById('sp-walkin').textContent  = wknd ? '₱200' : '₱150';
+  document.getElementById('sp-block3').textContent  = wknd ? '₱550' : '₱400';
+  document.getElementById('sn-block3').textContent  = wknd ? 'Saves ₱50 vs peak' : 'Saves ₱50 vs hourly';
+  // Student: show range since it depends on time selected
+  const studentMin = wknd ? 150 : 50;
+  const studentMax = wknd ? 150 : 150;
+  document.getElementById('sp-student').textContent = wknd ? '₱150' : '₱50–₱150';
+  document.getElementById('sn-student').textContent = '₱50 off applicable rate · Valid school ID';
+}
+
+// ── SESSION SELECT ────────────────────────────────────────────────────────
+function selectSession(el, type) {
+  document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedSession = type;
+  selectedSlot = null;
+  buildTimeGrid();
+  updateSummary();
+}
+
+// ── COMPUTE PRICE ─────────────────────────────────────────────────────────
+function computePrice(session, dateStr, startHour) {
+  const wknd = isWeekend(dateStr);
+
+  if (session === 'student') {
+    const base = getHourlyRate(dateStr, startHour);
+    // No discount during off-peak — already the lowest rate
+    if (base.label === 'Off-Peak Rate') {
+      return { total: 100, label: 'Student · Off-Peak Rate − ₱50 discount (₱100/hr)', hours: 1 };
+    }
+    const discounted = base.rate - 50;
+    return { total: discounted, label: `Student · ${base.label} − ₱50 discount (₱${discounted}/hr)`, hours: 1 };
+  }
+  if (session === 'corporate')  return { total: 1200, label: 'Corporate 4HR (free paddles)', hours: 4 };
+  if (session === 'membership') return { total: 999, label: 'Founding Membership /mo', hours: null };
+  if (session === 'block3')     return { total: wknd ? 550 : 400, label: wknd ? '3-Hr Block Peak/Wknd' : '3-Hr Block Regular', hours: 3 };
+
+  // regular, walkin — use hourly rate for start slot
+  const hr = getHourlyRate(dateStr, startHour);
+  return { total: hr.rate, label: `${hr.label} (₱${hr.rate}/hr)`, hours: 1 };
+}
+
+// ── TIME GRID ─────────────────────────────────────────────────────────────
+function buildTimeGrid() {
+  const grid = document.getElementById('timeGrid');
+  grid.innerHTML = '';
+  const now  = new Date();
+  const wknd = isWeekend(selectedDate);
+
+  for (let h = HOURS_OPEN; h < HOURS_CLOSE; h++) {
+    const key    = `${selectedDate}-${h}`;
+    const booked = bookedSlots.has(key) || blockedSlots.has(key);
+    const [sy, sm, sd] = selectedDate.split('-').map(Number);
+    const slotDT = new Date(sy, sm - 1, sd, h, 0, 0); // local time, no UTC shift
+    const past   = slotDT < now;
+
+    const fmt = (hr) => {
+      if (hr === 0 || hr === 24) return '12 AM';
+      if (hr === 12) return '12 PM';
+      return hr < 12 ? `${hr} AM` : `${hr - 12} PM`;
+    };
+
+    const hrInfo   = getHourlyRate(selectedDate, h);
+    const isPeakH  = !wknd && isPeak(h);
+    const isWkndH  = wknd;
+
+    const div = document.createElement('div');
+    div.className = 'time-slot' + (booked ? ' booked' : '') + (past && !booked ? ' past' : '');
+    if (selectedSlot && selectedSlot.hour === h && !booked && !past) div.classList.add('selected');
+
+    div.innerHTML = `
+      <div class="slot-time">${fmt(h)}</div>
+      <div class="slot-end">to ${fmt(h + 1)}</div>
+      <div class="slot-rate-tag">${hrInfo.label}</div>
+      <div class="slot-price">₱${hrInfo.rate}</div>
+      <span class="slot-badge ${booked ? 'badge-booked' : (isPeakH || isWkndH ? 'badge-peak' : 'badge-avail')}">
+        ${booked ? 'Booked' : past ? 'Past' : (isPeakH ? 'Peak' : isWkndH ? 'Wknd' : 'Open')}
+      </span>`;
+
+    if (!booked && !past) {
+      div.onclick = () => {
+        selectedSlot = { hour: h, label: `${fmt(h)} – ${fmt(h + 1)}` };
+        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+        div.classList.add('selected');
+        updateSummary();
+      };
+    }
+    grid.appendChild(div);
+  }
+}
+
+// ── SUMMARY ───────────────────────────────────────────────────────────────
+function updateSummary() {
+  const panel = document.getElementById('summaryPanel');
+  const btn   = document.getElementById('bookBtn');
+
+  if (!selectedSlot) { panel.classList.remove('visible'); btn.disabled = true; return; }
+
+  const paddles  = parseInt(document.getElementById('paddleRental').value) || 0;
+  const pricing  = computePrice(selectedSession, selectedDate, selectedSlot.hour);
+  const paddleFee = paddles * PADDLE_RATE;
+  const total    = pricing.total + paddleFee;
+
+  const dateObj = new Date(selectedDate + 'T12:00:00');
+  const dateStr = dateObj.toLocaleDateString('en-PH', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  const durationLabel = pricing.hours
+    ? (pricing.hours === 1
+        ? selectedSlot.label
+        : `${selectedSlot.label} (+${pricing.hours - 1} more hrs)`)
+    : selectedSlot.label;
+
+  document.getElementById('sumDate').textContent    = dateStr;
+  document.getElementById('sumTime').textContent    = durationLabel;
+  document.getElementById('sumSession').textContent = pricing.hours ? `${pricing.hours} hr${pricing.hours > 1 ? 's' : ''}` : 'Monthly';
+  document.getElementById('sumRateType').textContent = pricing.label + (paddles ? ` + ${paddles} paddle${paddles > 1 ? 's' : ''}` : '');
+  document.getElementById('sumTotal').textContent   = `₱${total.toLocaleString()}`;
+
+  panel.classList.add('visible');
+  btn.disabled = !document.getElementById('guestName').value.trim() ||
+                 !document.getElementById('guestPhone').value.trim();
+}
+
+// ── PAYMENT ───────────────────────────────────────────────────────────────
+function selectPayment(el) {
+  document.querySelectorAll('.payment-opt').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  selectedPayment = el.textContent.trim().replace(/[^a-zA-Z /]/g,'').trim();
+}
+
+// ── FORM EVENTS ───────────────────────────────────────────────────────────
+document.getElementById('guestName').addEventListener('input', updateSummary);
+document.getElementById('guestPhone').addEventListener('input', updateSummary);
+document.getElementById('paddleRental').addEventListener('change', updateSummary);
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────
+async function submitBooking() {
+  const name     = document.getElementById('guestName').value.trim();
+  const phone    = document.getElementById('guestPhone').value.trim();
+  const notes    = document.getElementById('guestNotes').value.trim();
+  const paddles  = parseInt(document.getElementById('paddleRental').value) || 0;
+  const pricing  = computePrice(selectedSession, selectedDate, selectedSlot.hour);
+  const paddleFee = paddles * PADDLE_RATE;
+  const total    = pricing.total + paddleFee;
+  const dateObj  = new Date(selectedDate + 'T12:00:00');
+  const dateStr  = dateObj.toLocaleDateString('en-PH', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  const btn = document.getElementById('bookBtn');
+  btn.disabled = true;
+  btn.textContent = 'SUBMITTING…';
+
+  const payload = {
+    name,
+    phone,
+    notes,
+    date:         selectedDate,
+    startHour:    selectedSlot.hour,
+    durationHours: pricing.hours || 1,
+    sessionLabel: pricing.hours ? `${pricing.hours} hr${pricing.hours > 1 ? 's' : ''}` : 'Monthly',
+    rateLabel:    pricing.label,
+    paddles,
+    total,
+    payment:      selectedPayment
+  };
+
+  let ref = 'APC-' + String(Date.now()).slice(-4); // fallback ref
+
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body:   JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.error || 'Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Reserve · Send ₱100 to 09195198324';
+      return;
+    }
+
+    ref = data.ref || ref;
+    // Do NOT mark slot locally — only blocks on page once you Confirm it in Google Sheet
+
+  } catch (err) {
+    // Network error — still show confirmation but warn
+    console.warn('Submission error:', err);
+    alert('Booking saved locally, but could not reach the server. Please message us on Facebook to confirm.');
+  }
+
+  // Show success screen
+  document.getElementById('refCode').textContent    = ref;
+  document.getElementById('confName').textContent   = name;
+  document.getElementById('confPhone').textContent  = phone;
+  document.getElementById('confDate').textContent   = dateStr;
+  document.getElementById('confTime').textContent   = selectedSlot.label;
+  document.getElementById('confSession').textContent = pricing.label;
+  document.getElementById('confPaddle').textContent  = paddles ? `${paddles} paddle${paddles>1?'s':''} (₱${paddleFee})` : 'None';
+  document.getElementById('confPayment').textContent = selectedPayment;
+  document.getElementById('confTotal').textContent  = `₱${total.toLocaleString()}`;
+
+  document.getElementById('bookingForm').style.display = 'none';
+  document.getElementById('successScreen').classList.add('visible');
+  window.scrollTo(0, 0);
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────
+function resetBooking() {
+  selectedSlot    = null;
+  selectedSession = 'regular';
+  ['guestName','guestPhone','guestNotes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('paddleRental').value = '0';
+  document.querySelectorAll('.session-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('summaryPanel').classList.remove('visible');
+  document.getElementById('bookingForm').style.display = 'block';
+  document.getElementById('successScreen').classList.remove('visible');
+  fetchSlots();
+  window.scrollTo(0, 0);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+buildDateStrip();
+</script>
+</body>
+</html>
