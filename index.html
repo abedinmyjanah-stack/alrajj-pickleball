@@ -154,12 +154,27 @@
   .header-center {
     flex: 1;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .header-slogan {
     font-family: 'Poppins', sans-serif;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 3px;
-    color: var(--text-sec);
+    color: var(--text);
     text-transform: uppercase;
+  }
+
+  .header-location {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-sec);
+    letter-spacing: 0.3px;
   }
 
   /* Book button in header */
@@ -1172,10 +1187,13 @@
     </svg>
     <div class="logo-text">
       <h1>ALRAJJ PICKLEBALL</h1>
-      <p>Sandig Paridi, Marawi City</p>
+      <p>Brgy. Paridi, Marawi City</p>
     </div>
     <!-- Center tagline -->
-    <div class="header-center">PLAY. ELEVATE.</div>
+    <div class="header-center">
+      <div class="header-slogan">BOOK. PLAY. ELEVATE.</div>
+      <div class="header-location">📍 Brgy. Paridi, Marawi City</div>
+    </div>
     <!-- CTA button -->
     <button class="header-book-btn" onclick="document.getElementById('dateStrip').scrollIntoView({behavior:'smooth'})">
       BOOK YOUR COURT
@@ -1359,7 +1377,7 @@
     Reserve · Send ₱100 to 09195198324
   </button>
 
-  <div class="footer-note">Alrajj Legacy Fortified Business Corp · #BookPlayElevate</div>
+  <div class="footer-note">Alrajj Pickleball · Brgy. Paridi, Marawi City · #BookPlayElevate</div>
 </div>
 
 <!-- SUCCESS SCREEN -->
@@ -1430,21 +1448,58 @@ function getSelectedSlot() {
 
 // ── FETCH LIVE SLOT DATA ───────────────────────────────────────
 async function fetchSlots() {
+  // Guard: selectedDate must be set before we can fetch
+  if (!selectedDate) {
+    console.warn('fetchSlots called before selectedDate was set — skipping');
+    return;
+  }
+
   showSlotLoading(true);
+
   try {
-    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getSlots`, { method: 'GET' });
+    // credentials: 'omit' prevents the browser from sending cookies on the
+    // cross-origin request. Without this, Safari blocks the GAS redirect with
+    // "Load failed" because GAS's 302 redirect drops CORS headers when
+    // credentials mode is 'same-origin' (the browser default).
+    const res = await fetch(
+      `${APPS_SCRIPT_URL}?action=getSlots`,
+      { method: 'GET', credentials: 'omit', redirect: 'follow' }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Server returned ${res.status} ${res.statusText}`);
+    }
+
     const data = await res.json();
+
     if (data.success) {
       bookedSlots.clear();
       blockedSlots.clear();
       (data.booked  || []).forEach(s => bookedSlots.add(s));
       (data.blocked || []).forEach(s => blockedSlots.add(s));
       slotsLoaded = true;
+    } else {
+      console.warn('getSlots returned success:false', data);
     }
+
   } catch (err) {
-    console.warn('Could not fetch slots:', err);
-    // Falls back to empty set — nothing shown as booked
+    // Log the real error with details for debugging
+    console.warn('Could not fetch slots:', err.message || err);
+    // Show a non-blocking inline notice so the user knows slots may not reflect live data
+    const grid = document.getElementById('timeGrid');
+    if (grid && grid.querySelector('.slot-skeleton')) {
+      // Still showing skeleton — replace with a soft warning
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;padding:16px;background:#FFFBEB;border:1px solid #FDE68A;
+                    border-radius:8px;font-size:12px;font-weight:600;color:#92400E;text-align:center;">
+          ⚠️ Could not load live availability. Slots shown may not be current.<br>
+          <span style="font-weight:400;font-size:11px;margin-top:4px;display:block;">
+            Please refresh the page or contact us on Facebook to check availability.
+          </span>
+        </div>`;
+    }
   }
+
   showSlotLoading(false);
   buildTimeGrid();
   addSlotHoverPreview();
@@ -1986,8 +2041,15 @@ async function submitBooking() {
 
   try {
     const res  = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body:   JSON.stringify(payload)
+      method:      'POST',
+      credentials: 'omit',
+      redirect:    'follow',
+      body:        JSON.stringify(payload)
+      // Note: Content-Type header intentionally omitted.
+      // GAS cross-origin POST with Content-Type: application/json triggers
+      // a CORS preflight that GAS cannot respond to. Omitting Content-Type
+      // sends a simple request (no preflight) while GAS still reads
+      // e.postData.contents correctly.
     });
     const data = await res.json();
 
@@ -2051,7 +2113,10 @@ async function checkBookingStatus() {
   result.innerHTML = '<div class="res-ref">Checking…</div>';
 
   try {
-    const res  = await fetch(`${APPS_SCRIPT_URL}?action=checkStatus&ref=${encodeURIComponent(input)}`);
+    const res  = await fetch(
+      `${APPS_SCRIPT_URL}?action=checkStatus&ref=${encodeURIComponent(input)}`,
+      { method: 'GET', credentials: 'omit', redirect: 'follow' }
+    );
     const data = await res.json();
 
     if (!data.found) {
