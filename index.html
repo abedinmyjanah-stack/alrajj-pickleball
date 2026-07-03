@@ -544,6 +544,84 @@
 
   .footer-note { text-align: center; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 1px; margin-top: 20px; text-transform: uppercase; }
 
+
+  /* ── STATUS CHECKER ── */
+  .status-checker {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold-dk);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .status-input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .status-input-row input {
+    flex: 1;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .btn-check {
+    background: var(--surface2);
+    border: 1px solid var(--gold-dk);
+    border-radius: 6px;
+    padding: 0 16px;
+    color: var(--gold);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .btn-check:hover { background: rgba(201,168,76,0.1); }
+
+  .status-result {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: none;
+  }
+
+  .status-result.visible { display: block; }
+  .status-result.pending   { background: rgba(245,199,66,0.1); border: 1px solid rgba(245,199,66,0.3); color: #F5C742; }
+  .status-result.confirmed { background: rgba(61,214,140,0.1); border: 1px solid rgba(61,214,140,0.3); color: #3DD68C; }
+  .status-result.cancelled { background: rgba(224,82,82,0.1);  border: 1px solid rgba(224,82,82,0.3);  color: #E05252; }
+  .status-result.notfound  { background: rgba(122,106,74,0.1); border: 1px solid var(--border); color: var(--muted); }
+
+  .status-result .res-ref  { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; margin-bottom: 6px; }
+  .status-result .res-line { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; }
+  .status-result .res-line:last-child { border-bottom: none; }
+  .res-key { opacity: 0.6; }
+
+  /* ── 3-HR SLOT PREVIEW ── */
+  .time-slot.will-block { border-color: rgba(201,168,76,0.4) !important; background: rgba(201,168,76,0.04) !important; }
+  .time-slot.will-block .slot-time { color: var(--gold); }
+
+  /* ── MAX HOURS WARNING ── */
+  .max-warn {
+    display: none;
+    background: rgba(155,28,28,0.15);
+    border: 1px solid rgba(155,28,28,0.4);
+    border-radius: 6px;
+    padding: 10px 13px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #e57373;
+    margin-bottom: 12px;
+  }
+  .max-warn.visible { display: block; }
+
   @media (min-width: 500px) {
     .time-grid { grid-template-columns: repeat(3, 1fr); }
     .container { padding: 24px 20px 100px; }
@@ -570,6 +648,17 @@
     <span>BOOK <em>·</em> PLAY <em>·</em> ELEVATE</span>
   </div>
 
+
+  <!-- BOOKING STATUS CHECKER -->
+  <div class="section-label">Check Booking Status</div>
+  <div class="status-checker">
+    <div class="status-input-row">
+      <input type="text" id="statusRefInput" placeholder="Enter ref e.g. APC-20260630-1234" style="text-transform:uppercase;" />
+      <button class="btn-check" onclick="checkBookingStatus()">Check</button>
+    </div>
+    <div class="status-result" id="statusResult"></div>
+  </div>
+
   <!-- STEP 1: DATE -->
   <div class="section-label">Step 1 · Select Date</div>
   <div class="card" style="padding:12px;">
@@ -581,6 +670,7 @@
   </div>
 
   <!-- STEP 2: SESSION TYPE -->
+  <div class="max-warn" id="maxWarn">⚠️ Max 3 hours per customer per day. You already have a booking on this date.</div>
   <div class="section-label">Step 2 · Session Type</div>
   <div class="session-grid" id="sessionGrid">
     <div class="session-btn active" onclick="selectSession(this,'regular')" data-type="regular">
@@ -804,6 +894,7 @@ async function fetchSlots() {
   }
   showSlotLoading(false);
   buildTimeGrid();
+  addSlotHoverPreview();
 }
 
 function showSlotLoading(on) {
@@ -947,6 +1038,7 @@ function buildTimeGrid() {
 
     const div = document.createElement('div');
     div.className = 'time-slot' + (booked ? ' booked' : '') + (past && !booked ? ' past' : '');
+    div.dataset.hour = h;
     if (selectedSlot && selectedSlot.hour === h && !booked && !past) div.classList.add('selected');
 
     div.innerHTML = `
@@ -1097,6 +1189,84 @@ function resetBooking() {
   document.getElementById('successScreen').classList.remove('visible');
   fetchSlots();
   window.scrollTo(0, 0);
+}
+
+// ── BOOKING STATUS CHECKER ───────────────────────────────────────────────
+async function checkBookingStatus() {
+  const input  = document.getElementById('statusRefInput').value.trim().toUpperCase();
+  const result = document.getElementById('statusResult');
+
+  if (!input) return;
+
+  result.className = 'status-result visible notfound';
+  result.innerHTML = '<div class="res-ref">Checking…</div>';
+
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=checkStatus&ref=${encodeURIComponent(input)}`);
+    const data = await res.json();
+
+    if (!data.found) {
+      result.className = 'status-result visible notfound';
+      result.innerHTML = `<div class="res-ref">Not Found</div><div style="font-size:11px;opacity:0.7">No booking found for <strong>${input}</strong>. Double-check the reference number on your confirmation.</div>`;
+      return;
+    }
+
+    const statusClass = data.status === 'Confirmed' ? 'confirmed' : data.status === 'Cancelled' ? 'cancelled' : 'pending';
+    const statusIcon  = data.status === 'Confirmed' ? '✅' : data.status === 'Cancelled' ? '❌' : '⏳';
+
+    result.className = `status-result visible ${statusClass}`;
+    result.innerHTML = `
+      <div class="res-ref">${statusIcon} ${data.status.toUpperCase()} · ${input}</div>
+      <div class="res-line"><span class="res-key">Name</span><span>${data.name}</span></div>
+      <div class="res-line"><span class="res-key">Date</span><span>${data.date}</span></div>
+      <div class="res-line"><span class="res-key">Time</span><span>${data.time}</span></div>
+      <div class="res-line"><span class="res-key">Session</span><span>${data.session}</span></div>
+      <div class="res-line"><span class="res-key">Total</span><span>₱${data.total}</span></div>
+      ${data.status === 'Pending' ? '<div style="margin-top:8px;font-size:10px;opacity:0.7">Your slot is reserved. Send ₱100 GCash to JE**N A. · 09195198324 to confirm.</div>' : ''}
+      ${data.status === 'Cancelled' ? '<div style="margin-top:8px;font-size:10px;opacity:0.7">This booking was cancelled. Message us on Facebook to rebook.</div>' : ''}
+    `;
+  } catch(err) {
+    result.className = 'status-result visible notfound';
+    result.innerHTML = '<div class="res-ref">Error</div><div style="font-size:11px">Could not reach the server. Check your connection and try again.</div>';
+  }
+}
+
+// Allow Enter key to trigger status check
+document.getElementById('statusRefInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') checkBookingStatus();
+});
+
+// ── 3-HR SLOT HOVER PREVIEW ───────────────────────────────────────────────
+function addSlotHoverPreview() {
+  const slots = document.querySelectorAll('.time-slot:not(.booked):not(.past)');
+  slots.forEach(slot => {
+    slot.addEventListener('mouseenter', () => {
+      if (selectedSession !== 'block3' && selectedSession !== 'corporate') return;
+      const hours = selectedSession === 'corporate' ? 4 : 3;
+      const h = parseInt(slot.dataset.hour);
+      for (let i = 1; i < hours; i++) {
+        const next = document.querySelector(`.time-slot[data-hour="${h + i}"]`);
+        if (next && !next.classList.contains('booked') && !next.classList.contains('past')) {
+          next.classList.add('will-block');
+        }
+      }
+    });
+    slot.addEventListener('mouseleave', () => {
+      document.querySelectorAll('.time-slot.will-block').forEach(s => s.classList.remove('will-block'));
+    });
+  });
+}
+
+// ── MAX 3 HOURS PER DAY CHECK ─────────────────────────────────────────────
+function checkMaxHours(name, phone) {
+  // Count how many slots on selectedDate are already booked under this phone number
+  // We can't check this client-side without querying the sheet — enforced server-side in Apps Script
+  // Client side: just show warning if they try to book a 3-hr block as a second booking on same day
+  const warn = document.getElementById('maxWarn');
+  if (!name || !phone) { warn.classList.remove('visible'); return false; }
+  // Warning is set by Apps Script response if exceeded — reset here
+  warn.classList.remove('visible');
+  return false;
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
