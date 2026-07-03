@@ -1270,21 +1270,6 @@
 
 <script>
 // ── PRICING ENGINE ────────────────────────────────────────────────────────
-const RATES = {
-  regular:    { label: 'Regular',          perHour: 150, fixed: null },
-  student:    { label: 'Student',          perHour: 100, fixed: null },
-  offpeak:    { label: 'Off-Peak',         perHour: 150, fixed: null },
-  peak:       { label: 'Peak',             perHour: 200, fixed: null },
-  weekend:    { label: 'Weekend',          perHour: 200, fixed: null },
-  block3reg:  { label: '3-Hr Block (Reg)', perHour: null, fixed: 400, hours: 3 },
-  block3peak: { label: '3-Hr Block (Peak/Wknd)', perHour: null, fixed: 550, hours: 3 },
-  corporate:  { label: 'Corporate 4HR',   perHour: null, fixed: 1200, hours: 4 },
-  membership: { label: 'Founding Membership', perHour: null, fixed: 999, hours: null },
-  walkin:     { label: 'Walk-in',          perHour: 150, fixed: null },
-};
-
-const HOURS_OPEN  = 9;
-const HOURS_CLOSE = 22; // 10 PM per the rate sheet (corrected)
 // ── CONFIGURATION — paste your deployed Apps Script URL below ──
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL1zXm8UaVVQIUxcbX2koa8W_HsxiQZ7IoPIIUxtW_EjOQW-AsDiFEc7pcKePJCuTj/exec';
 
