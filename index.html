@@ -1174,6 +1174,143 @@
     .session-grid { grid-template-columns: repeat(2, 1fr); }
     .container { padding: 16px 14px 100px; }
   }
+
+  /* ── PHASE 2: PAYMENT UPLOAD ──────────────────────────────────── */
+  .upload-zone {
+    border: 2px dashed var(--border-mid);
+    border-radius: var(--radius);
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--card);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--gold);
+    background: var(--gold-bg);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  .upload-icon { font-size: 36px; display: block; margin-bottom: 10px; }
+  .upload-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .upload-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: block;
+  }
+  .upload-preview {
+    display: none;
+    margin-top: 14px;
+    position: relative;
+  }
+  .upload-preview.visible { display: block; }
+  .upload-preview img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+  .upload-preview-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+  }
+  .btn-remove-upload {
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    color: var(--red);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-remove-upload:hover { background: var(--red); color: #fff; }
+  .upload-error {
+    display: none;
+    margin-top: 8px;
+    padding: 9px 13px;
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--red);
+  }
+  .upload-error.visible { display: block; }
+
+  /* ── PHASE 2: COPY CONFIRMATION BUTTON ────────────────────── */
+  .btn-copy-confirm {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    border-radius: 50px;
+    padding: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-copy-confirm:hover {
+    background: var(--gold-dk);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .btn-copy-confirm.copied {
+    background: var(--green);
+    color: #fff;
+  }
+
+  /* ── PHASE 2: SUCCESS SCREEN BOOKING ID BADGE ───────────── */
+  .booking-id-badge {
+    display: inline-block;
+    background: var(--gold-bg);
+    border: 1.5px solid var(--gold);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--gold-dk);
+    margin-bottom: 16px;
+  }
+
 </style>
 </head>
 <body>
@@ -1355,6 +1492,25 @@
     </div>
   </div>
 
+  <!-- PAYMENT SCREENSHOT UPLOAD -->
+  <div class="section-label">Payment Screenshot</div>
+  <div class="card" style="padding:16px;">
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="paymentFile" accept=".jpg,.jpeg,.png,.webp" onchange="handleFileSelect(event)" />
+      <span class="upload-icon">📸</span>
+      <span class="upload-label">Upload GCash Payment Screenshot</span>
+      <span class="upload-hint">JPG, PNG or WEBP · Max 10MB · Required before booking</span>
+    </div>
+    <div class="upload-preview" id="uploadPreview">
+      <img id="uploadPreviewImg" src="" alt="Payment screenshot preview" />
+      <div class="upload-preview-info">
+        <span id="uploadFileName">—</span>
+        <button class="btn-remove-upload" onclick="removeUpload()">✕ Remove</button>
+      </div>
+    </div>
+    <div class="upload-error" id="uploadError">Please upload your GCash payment screenshot before submitting.</div>
+  </div>
+
   <!-- PAYMENT -->
   <div class="section-label">Pay Reservation Fee · GCash Only</div>
   <div style="text-align:center;padding:10px 0 4px;font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;color:var(--gold-dk)">JE**N A. · 09195198324</div>
@@ -1382,16 +1538,33 @@
 
 <!-- SUCCESS SCREEN -->
 <div class="container success-screen" id="successScreen">
-  <div class="success-icon-wrap">🏆</div>
-  <h2>Slot Reserved!</h2>
-  <p>Your court is locked in. Send the ₱100 reservation fee via GCash to <strong style="color:var(--gold)">JE**N A. · 09195198324</strong>, then screenshot this page as proof. Remaining balance payable via GCash or Cash at the court.</p>
+  <div class="success-icon-wrap">📋</div>
 
+  <h2 style="font-size:22px;margin-bottom:10px;">Booking Request Submitted!</h2>
+
+  <p style="margin-bottom:6px;">
+    Thank you for choosing <strong>Alrajj Pickleball Court</strong>.
+  </p>
+  <p style="margin-bottom:20px;">
+    Your booking request has been received and is currently
+    <strong style="color:var(--gold-dk);">Pending Payment Verification</strong>.
+    Our team will review your payment screenshot and send your official booking
+    confirmation through <strong>Facebook Messenger</strong> once your payment
+    has been confirmed.
+  </p>
+
+  <!-- Booking reference — populated by submitBooking() -->
   <div class="booking-ref">
     <div class="ref-label">Booking Reference</div>
     <div class="ref-code" id="refCode">APC-0000</div>
   </div>
 
-  <div class="conf-card">
+  <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">
+    Please save this reference number in case you need to follow up with us.
+  </p>
+
+  <!-- Booking details card — IDs kept intact for Phase 3 admin dashboard reuse -->
+  <div class="conf-card" style="text-align:left;">
     <div class="summary-line"><span class="sum-key">Name</span><span class="sum-val" id="confName">—</span></div>
     <div class="summary-line"><span class="sum-key">Phone</span><span class="sum-val" id="confPhone">—</span></div>
     <div class="summary-line"><span class="sum-key">Date</span><span class="sum-val" id="confDate">—</span></div>
@@ -1403,14 +1576,27 @@
     <div class="summary-total">
       <div class="total-col">
         <span class="total-label">Total Due</span>
-        <span class="res-due">Remaining balance collected at the court after your session</span>
+        <span class="res-due">Balance collected at the court after your session</span>
       </div>
       <span class="total-amount" id="confTotal">₱0</span>
     </div>
   </div>
 
+  <!-- Status notice -->
+  <div style="margin:16px 0;padding:14px 16px;background:var(--gold-bg);border:1.5px solid var(--gold-border);
+              border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--gold-dk);line-height:1.7;">
+    ⏳ Your payment screenshot has been submitted for review.<br>
+    We will message you on <strong>Facebook Messenger</strong> once your booking is confirmed.
+  </div>
+
+  <!--
+    PHASE 3 NOTE: copyConfirmation(), fallbackCopy(), flashCopyBtn() functions
+    are preserved in JS below (commented out) for reuse in the Admin Dashboard.
+    Do not remove them — they will be wired to the admin approval flow.
+  -->
+
   <button class="btn-book" onclick="resetBooking()">Book Another Slot</button>
-  <button class="btn-secondary" onclick="window.print()">Save / Print</button>
+  <button class="btn-secondary" onclick="window.print()" style="margin-top:10px;">Save / Print</button>
 </div>
 
 <script>
@@ -1993,6 +2179,13 @@ async function submitBooking() {
     return;
   }
 
+  // Phase 2: payment screenshot is required
+  if (!uploadedFileBase64) {
+    showUploadError('Please upload your GCash payment screenshot before submitting.');
+    document.getElementById('uploadZone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   const exact = getSessionExactHours(selectedSession);
   if (exact !== null && selectedSlots.length !== exact) {
     showValidation(
@@ -2034,7 +2227,9 @@ async function submitBooking() {
     rateLabel:     pricing.label,
     paddles,
     total,
-    payment:       selectedPayment
+    payment:       selectedPayment,
+    imageBase64:   uploadedFileBase64,    // Phase 2: base64-encoded screenshot
+    imageName:     uploadedFileName       // Phase 2: original filename
   };
 
   let ref = 'APC-' + String(Date.now()).slice(-4); // fallback ref
@@ -2092,6 +2287,8 @@ function resetBooking() {
   selectedSession = 'regular';
   ['guestName','guestPhone','guestNotes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('paddleRental').value = '0';
+  // Phase 2: clear payment upload
+  removeUpload();
   document.querySelectorAll('.session-btn').forEach((b,i) => b.classList.toggle('active', i===0));
   document.getElementById('summaryPanel').classList.remove('visible');
   document.getElementById('upsellNudge').classList.remove('visible');
@@ -2189,6 +2386,184 @@ function checkMaxHours(name, phone) {
   warn.classList.remove('visible');
   return false;
 }
+
+
+// ── PHASE 2: PAYMENT FILE STATE ───────────────────────────────
+let uploadedFileBase64 = null;   // base64 string (no data URI prefix)
+let uploadedFileName   = null;   // original filename
+
+// ── FILE SELECT HANDLER ───────────────────────────────────────
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validate type
+  const allowed = ['image/jpeg','image/png','image/webp'];
+  if (!allowed.includes(file.type)) {
+    showUploadError('Only JPG, PNG, and WEBP files are accepted.');
+    clearFileInput();
+    return;
+  }
+
+  // Validate size (10 MB)
+  if (file.size > 10 * 1024 * 1024) {
+    showUploadError('File is too large. Maximum size is 10 MB.');
+    clearFileInput();
+    return;
+  }
+
+  hideUploadError();
+
+  // Convert to base64 and show preview
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    // Strip the "data:image/...;base64," prefix — Apps Script only needs the raw base64
+    uploadedFileBase64 = dataUrl.split(',')[1];
+    uploadedFileName   = file.name;
+
+    document.getElementById('uploadPreviewImg').src = dataUrl;
+    document.getElementById('uploadFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+    document.getElementById('uploadPreview').classList.add('visible');
+    document.getElementById('uploadZone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeUpload() {
+  uploadedFileBase64 = null;
+  uploadedFileName   = null;
+  document.getElementById('uploadPreview').classList.remove('visible');
+  document.getElementById('uploadPreviewImg').src = '';
+  document.getElementById('uploadFileName').textContent = '—';
+  document.getElementById('uploadZone').style.display = 'block';
+  clearFileInput();
+  hideUploadError();
+}
+
+function clearFileInput() {
+  const input = document.getElementById('paymentFile');
+  input.value = '';
+}
+
+function showUploadError(msg) {
+  const el = document.getElementById('uploadError');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function hideUploadError() {
+  document.getElementById('uploadError').classList.remove('visible');
+}
+
+// Drag-and-drop support for upload zone
+(function() {
+  const zone = document.getElementById('uploadZone');
+  if (!zone) return;
+  zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', function()  { zone.classList.remove('dragover'); });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      document.getElementById('paymentFile').files = e.dataTransfer.files;
+      handleFileSelect({ target: { files: e.dataTransfer.files } });
+    }
+  });
+})();
+
+// ── PHASE 3 ADMIN DASHBOARD — COPY CONFIRMATION ──────────────
+// These functions are preserved for reuse in the Admin Dashboard (Phase 3).
+// They are NOT called from the customer-facing UI.
+// Wire copyConfirmation() to the admin approval button when building Phase 3.
+/* ADMIN_COPY_START
+function copyConfirmation() {
+  const id      = document.getElementById('refCode').textContent.trim();
+  const name    = document.getElementById('confName').textContent.trim();
+  const phone   = document.getElementById('confPhone').textContent.trim();
+  const date    = document.getElementById('confDate').textContent.trim();
+  const time    = document.getElementById('confTime').textContent.trim();
+  const session = document.getElementById('confSession').textContent.trim();
+  const total   = document.getElementById('confTotal').textContent.trim();
+  const payment = document.getElementById('confPayment').textContent.trim();
+
+  const msg = [
+    '——————————————————————',
+    '✅ BOOKING CONFIRMED',
+    '——————————————————————',
+    '',
+    'Booking ID:',
+    id,
+    '',
+    'Customer:',
+    name,
+    '',
+    'Mobile:',
+    phone,
+    '',
+    'Court:',
+    'Court 1',
+    '',
+    'Date:',
+    date,
+    '',
+    'Time:',
+    time,
+    '',
+    'Session:',
+    session,
+    '',
+    'Total:',
+    total,
+    '',
+    'Payment:',
+    'Received — ' + payment,
+    '',
+    'Location:',
+    'Brgy. Paridi, Marawi City',
+    '',
+    'Thank you for choosing',
+    'Alrajj Private Pickleball Court.',
+    '',
+    'Book. Play. Elevate.',
+    '——————————————————————',
+  ].join('\n');
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(msg).then(function() {
+      flashCopyBtn();
+    }).catch(function() {
+      fallbackCopy(msg);
+    });
+  } else {
+    fallbackCopy(msg);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  flashCopyBtn();
+}
+
+function flashCopyBtn() {
+  const btn = document.getElementById('copyConfirmBtn');
+  if (!btn) return;
+  btn.textContent = '✅ Copied to Clipboard!';
+  btn.classList.add('copied');
+  setTimeout(function() {
+    btn.innerHTML = '📋 Copy Confirmation Message';
+    btn.classList.remove('copied');
+  }, 2500);
+}
+ADMIN_COPY_END */
+
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 buildDateStrip();
