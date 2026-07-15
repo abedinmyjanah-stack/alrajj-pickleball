@@ -1612,24 +1612,22 @@ canvas.chart-canvas {
       </div>
 
       <div class="page" id="page-calendar">
-        <div class="empty-state">
-          <div class="empty-icon">📅</div>
-          <div class="empty-msg">Calendar — Module 3</div>
+        <div id="calendarWrap">
+          <div style="padding:32px;text-align:center;color:var(--text-muted);">Loading calendar…</div>
         </div>
       </div>
 
       <div class="page" id="page-customers">
-        <div class="empty-state">
-          <div class="empty-icon">👥</div>
-          <div class="empty-msg">Customer Database — Module 4</div>
+        <div class="toolbar">
+          <input class="search-input" type="search" placeholder="Search by name or phone…"
+                 oninput="CustomersModule.onSearch(this.value)" aria-label="Search customers" />
+          <button class="btn-toolbar" onclick="CustomersModule.reload()" style="margin-left:auto;">↻ Reload</button>
         </div>
+        <div id="customersWrap"></div>
       </div>
 
       <div class="page" id="page-reports">
-        <div class="empty-state">
-          <div class="empty-icon">📈</div>
-          <div class="empty-msg">Reports — Module 5</div>
-        </div>
+        <div id="reportsWrap"></div>
       </div>
 
       <div class="page" id="page-settings">
@@ -1937,28 +1935,39 @@ const Util = {
 // Interactions: called only by BookingRepository. Never by UI modules.
 // ================================================================
 const API = {
-  async get(action, params) {
+  /**
+   * GET request — used for all read AND write operations.
+   * Write payloads are JSON-encoded into the ?data= param.
+   * This avoids CORS preflight (no OPTIONS request) and the
+   * POST-redirect-loses-body problem with Google Apps Script.
+   *
+   * @param {string} action  — GAS action name
+   * @param {object} params  — URL params (for reads)
+   * @param {object} payload — write payload (encoded as ?data=JSON)
+   */
+  async get(action, params, payload) {
     const url = new URL(CONFIG.APPS_SCRIPT_URL);
-    url.searchParams.set('action', action);
+    url.searchParams.set('action',   action);
     url.searchParams.set('adminKey', CONFIG.ADMIN_API_KEY);
-    if (params) Object.entries(params).forEach(([k,v]) => { if (v != null) url.searchParams.set(k, String(v)); });
-    const res  = await fetch(url.toString(), { method:'GET', credentials:'omit', redirect:'follow' });
+    if (params)  Object.entries(params).forEach(([k,v]) => { if (v != null) url.searchParams.set(k, String(v)); });
+    if (payload) url.searchParams.set('data', JSON.stringify(payload));
+    const res = await fetch(url.toString(), { method: 'GET', credentials: 'omit', redirect: 'follow' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data.error && !data.success) throw new Error(data.error);
     return data;
   },
 
+  /**
+   * post() kept for backward compatibility but now routes through GET.
+   * The payload action field determines which GAS handler runs.
+   */
   async post(payload) {
-    const body = Object.assign({ adminKey: CONFIG.ADMIN_API_KEY }, payload);
-    const res  = await fetch(CONFIG.APPS_SCRIPT_URL, {
-      method:'POST', credentials:'omit', redirect:'follow',
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (data.error && !data.success) throw new Error(data.error);
-    return data;
+    const action = payload.action || 'manualBooking';
+    const data   = Object.assign({}, payload);
+    delete data.action;
+    delete data.adminKey;
+    return API.get(action, null, data);
   },
 };
 
@@ -2804,6 +2813,9 @@ const Nav = {
     if (pageId === 'dashboard')       Dashboard.load();
     if (pageId === 'bookings')         Bookings.load();
     if (pageId === 'manual-booking')   ManualBooking.init();
+    if (pageId === 'calendar')         CalendarModule.load();
+    if (pageId === 'customers')        CustomersModule.load();
+    if (pageId === 'reports')          ReportsModule.load();
   },
   refresh() {
     if (Nav.current === 'dashboard') Dashboard._hardRefresh();
@@ -3812,6 +3824,212 @@ const ManualBooking = {
     // Focus phone
     setTimeout(() => { const el = document.getElementById('mbPhone'); if (el) el.focus(); }, 100);
   },
+};
+
+// ================================================================
+// 26. Calendar — Module 3
+// ================================================================
+const CalendarModule = {
+  _loaded: false,
+  _data:   null,
+
+  async load() {
+    const wrap = document.getElementById('calendarWrap');
+    if (!wrap) return;
+    if (CalendarModule._loaded && CalendarModule._data) {
+      CalendarModule._render(CalendarModule._data); return;
+    }
+    wrap.innerHTML = '<div style="padding:32px;text-align:center;">' + Util.skeleton(3,14) + '</div>';
+
+    try {
+      // Get current month range
+      const now   = new Date();
+      const from  = Util.toDateKey(new Date(now.getFullYear(), now.getMonth(), 1));
+      const to    = Util.toDateKey(new Date(now.getFullYear(), now.getMonth()+1, 0));
+      const data  = await API.get('getCalendar', { from, to });
+      CalendarModule._data   = data.calendar || {};
+      CalendarModule._loaded = true;
+      CalendarModule._render(CalendarModule._data);
+    } catch(err) {
+      wrap.innerHTML = '<div style="padding:32px;text-align:center;color:var(--rejected-color);">⚠️ ' + Util.esc(err.message) + ' <button onclick="CalendarModule.load()" style="margin-left:8px;padding:4px 12px;border:1px solid currentColor;border-radius:20px;background:none;cursor:pointer;color:inherit;">Retry</button></div>';
+    }
+  },
+
+  _render(calendar) {
+    const wrap = document.getElementById('calendarWrap');
+    if (!wrap) return;
+    const now   = new Date();
+    const year  = now.getFullYear();
+    const month = now.getMonth();
+    const days  = new Date(year, month+1, 0).getDate();
+    const first = new Date(year, month, 1).getDay();
+    const monthName = now.toLocaleDateString('en-PH', { month:'long', year:'numeric' });
+
+    let html = '<div style="padding:16px;">';
+    html += '<div style="font-size:15px;font-weight:700;margin-bottom:14px;">' + Util.esc(monthName) + '</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">';
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+      html += '<div style="text-align:center;font-size:10px;font-weight:700;color:var(--text-muted);padding:6px 0;">' + d + '</div>';
+    });
+    for (let i = 0; i < first; i++) html += '<div></div>';
+    for (let d = 1; d <= days; d++) {
+      const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      const bks     = calendar[dateStr] || [];
+      const isToday = dateStr === Util.today();
+      const hasBk   = bks.length > 0;
+      html += '<div style="min-height:60px;border:1px solid var(--border);border-radius:6px;padding:4px;background:' +
+        (isToday ? 'var(--gold-bg)' : 'var(--surface)') + ';">' +
+        '<div style="font-size:11px;font-weight:' + (isToday?'800':'600') + ';color:' + (isToday?'var(--gold-dk)':'var(--text-secondary)') + ';margin-bottom:2px;">' + d + '</div>';
+      if (hasBk) {
+        bks.slice(0,2).forEach(b => {
+          html += '<div style="font-size:9px;padding:1px 3px;border-radius:3px;background:var(--confirmed-bg);color:var(--confirmed-color);margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + Util.esc(b.name + ' ' + b.timeLabel) + '">' + Util.esc(b.timeLabel) + '</div>';
+        });
+        if (bks.length > 2) html += '<div style="font-size:9px;color:var(--text-muted);">+' + (bks.length-2) + ' more</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div></div>';
+    wrap.innerHTML = html;
+  },
+
+  reload() { CalendarModule._loaded = false; CalendarModule.load(); },
+};
+
+// ================================================================
+// 27. Customers — Module 4
+// ================================================================
+const CustomersModule = {
+  _loaded: false,
+  _data:   [],
+  _search: '',
+
+  async load() {
+    const wrap = document.getElementById('customersWrap');
+    if (!wrap) return;
+    if (CustomersModule._loaded && CustomersModule._data.length) {
+      CustomersModule._render(); return;
+    }
+    wrap.innerHTML = '<div style="padding:32px;">' + Util.skeleton(5,16) + '</div>';
+    try {
+      const data = await API.get('getCustomers');
+      CustomersModule._data   = data.customers || [];
+      CustomersModule._loaded = true;
+      CustomersModule._render();
+    } catch(err) {
+      wrap.innerHTML = '<div style="padding:32px;color:var(--rejected-color);">⚠️ ' + Util.esc(err.message) + ' <button onclick="CustomersModule.load()" style="margin-left:8px;padding:4px 12px;border:1px solid currentColor;border-radius:20px;background:none;cursor:pointer;color:inherit;">Retry</button></div>';
+    }
+  },
+
+  _render() {
+    const wrap = document.getElementById('customersWrap');
+    if (!wrap) return;
+    const q   = CustomersModule._search.toLowerCase();
+    const list = q
+      ? CustomersModule._data.filter(c => c.customerName.toLowerCase().includes(q) || c.mobile.includes(q))
+      : CustomersModule._data;
+
+    if (!list.length) { wrap.innerHTML = Util.empty('👥', q ? 'No customers match your search.' : 'No customers yet.'); return; }
+
+    wrap.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:4px;">' +
+      list.map(c => '<div class="panel" style="padding:0;overflow:hidden;">' +
+        '<div style="padding:14px 16px;display:flex;align-items:center;gap:12px;">' +
+        '<div style="width:40px;height:40px;border-radius:50%;background:var(--gold-bg);border:2px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:var(--gold-dk);flex-shrink:0;">' + Util.esc(Util.initial(c.customerName)) + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+        '<div style="font-weight:700;font-size:13px;">' + Util.esc(c.customerName) + '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);">' + Util.esc(c.mobile) + '</div>' +
+        '</div></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--border);">' +
+        [['Bookings', c.totalBookings], ['Hours', c.totalHours], ['Spent', Util.peso(c.totalSpent)]].map(([l,v]) =>
+          '<div style="padding:10px;text-align:center;border-right:1px solid var(--border);">' +
+          '<div style="font-size:14px;font-weight:800;">' + Util.esc(String(v)) + '</div>' +
+          '<div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">' + l + '</div></div>'
+        ).join('') + '</div>' +
+        '<div style="padding:8px 16px;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);">Last: ' + Util.esc(c.lastBooking ? Util.fmtDate(c.lastBooking) : '—') + '</div>' +
+        '</div>'
+      ).join('') + '</div>';
+  },
+
+  onSearch(q) { CustomersModule._search = q; CustomersModule._render(); },
+  reload()    { CustomersModule._loaded = false; CustomersModule.load(); },
+};
+
+// ================================================================
+// 28. Reports — Module 5
+// ================================================================
+const ReportsModule = {
+  _loaded: false,
+  _data:   null,
+
+  async load() {
+    const wrap = document.getElementById('reportsWrap');
+    if (!wrap) return;
+    if (ReportsModule._loaded && ReportsModule._data) {
+      ReportsModule._render(ReportsModule._data); return;
+    }
+    wrap.innerHTML = '<div style="padding:32px;">' + Util.skeleton(4,20) + '</div>';
+    try {
+      const data = await API.get('getReports');
+      ReportsModule._data   = data;
+      ReportsModule._loaded = true;
+      ReportsModule._render(data);
+    } catch(err) {
+      wrap.innerHTML = '<div style="padding:32px;color:var(--rejected-color);">⚠️ ' + Util.esc(err.message) + ' <button onclick="ReportsModule.load()" style="margin-left:8px;padding:4px 12px;border:1px solid currentColor;border-radius:20px;background:none;cursor:pointer;color:inherit;">Retry</button></div>';
+    }
+  },
+
+  _render(data) {
+    const wrap = document.getElementById('reportsWrap');
+    if (!wrap) return;
+    const s = data.summary || {};
+    const bySource  = data.bySource  || {};
+    const bySession = data.bySession || {};
+    const months    = data.monthSeries || [];
+
+    const statCard = (icon, label, value) =>
+      '<div class="kpi-card" style="--kpi-accent:var(--gold)"><span class="kpi-icon">' + icon + '</span>' +
+      '<div class="kpi-value">' + Util.esc(String(value)) + '</div>' +
+      '<div class="kpi-label">' + Util.esc(label) + '</div></div>';
+
+    let html = '<div class="kpi-grid" style="margin-bottom:20px;">' +
+      statCard('💰', 'Total Revenue', Util.peso(s.totalRevenue||0)) +
+      statCard('📋', 'Total Bookings', s.totalBookings||0) +
+      statCard('⏱️', 'Total Hours', (s.totalHours||0) + ' hrs') +
+      '</div>';
+
+    // Monthly revenue table
+    if (months.length) {
+      html += '<div class="panel" style="margin-bottom:16px;"><div class="panel-header"><div class="panel-title">📅 Monthly Revenue</div></div><div class="panel-body" style="padding:0;">';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+      html += '<tr style="background:var(--bg);"><th style="padding:10px 14px;text-align:left;color:var(--text-muted);font-size:10px;letter-spacing:0.8px;">MONTH</th><th style="padding:10px 14px;text-align:right;color:var(--text-muted);font-size:10px;">REVENUE</th><th style="padding:10px 14px;text-align:right;color:var(--text-muted);font-size:10px;">BOOKINGS</th><th style="padding:10px 14px;text-align:right;color:var(--text-muted);font-size:10px;">HOURS</th></tr>';
+      months.slice().reverse().forEach(m => {
+        html += '<tr style="border-top:1px solid var(--border);"><td style="padding:10px 14px;">' + Util.esc(m.month) + '</td>' +
+          '<td style="padding:10px 14px;text-align:right;font-weight:700;">' + Util.esc(Util.peso(m.revenue)) + '</td>' +
+          '<td style="padding:10px 14px;text-align:right;">' + m.bookings + '</td>' +
+          '<td style="padding:10px 14px;text-align:right;">' + m.hours + ' hrs</td></tr>';
+      });
+      html += '</table></div></div>';
+    }
+
+    // Source breakdown
+    const srcEntries = Object.entries(bySource).sort((a,b) => b[1]-a[1]);
+    if (srcEntries.length) {
+      html += '<div class="panel"><div class="panel-header"><div class="panel-title">📊 Bookings by Source</div></div><div class="panel-body" style="padding:14px 16px;">';
+      const total = srcEntries.reduce((s,[,v]) => s+v, 0);
+      srcEntries.forEach(([src, cnt]) => {
+        const pct = total ? Math.round(cnt/total*100) : 0;
+        html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+          '<div style="width:90px;font-size:12px;font-weight:600;">' + Util.esc(src) + '</div>' +
+          '<div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;">' +
+          '<div style="height:100%;width:' + pct + '%;background:var(--gold);border-radius:4px;"></div></div>' +
+          '<div style="width:40px;text-align:right;font-size:12px;font-weight:700;">' + cnt + '</div></div>';
+      });
+      html += '</div></div>';
+    }
+
+    wrap.innerHTML = html;
+  },
+
+  reload() { ReportsModule._loaded = false; ReportsModule.load(); },
 };
 
 // ================================================================
