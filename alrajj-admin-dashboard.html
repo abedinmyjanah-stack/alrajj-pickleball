@@ -1,0 +1,3840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alrajj Operations — Admin</title>
+<style>
+/* ================================================================
+   ALRAJJ OPERATIONS SYSTEM — Admin Dashboard
+   Module 1: Dashboard
+   All CSS is structured in sections so future modules can append
+   their own rules without touching existing blocks.
+================================================================ */
+
+/* ── 1. DESIGN TOKENS ─────────────────────────────────────── */
+:root {
+  /* Brand */
+  --gold:         #C9971A;
+  --gold-lt:      #E8B820;
+  --gold-dk:      #9A7212;
+  --gold-bg:      #FFFBEE;
+  --gold-border:  #E8D48A;
+
+  /* Surface */
+  --bg:           #F4F5F7;
+  --surface:      #FFFFFF;
+  --surface-raised:#FFFFFF;
+  --border:       #E2E4E8;
+  --border-strong:#C8CAD0;
+
+  /* Text */
+  --text-primary:  #1A1D23;
+  --text-secondary:#5A6072;
+  --text-muted:    #9399A8;
+
+  /* Status colours */
+  --pending-color: #D97706;  --pending-bg: #FFFBEB;  --pending-border: #FDE68A;
+  --verified-color:#2563EB;  --verified-bg:#EFF6FF;  --verified-border:#BFDBFE;
+  --confirmed-color:#16A34A; --confirmed-bg:#F0FDF4; --confirmed-border:#BBF7D0;
+  --completed-color:#7C3AED; --completed-bg:#F5F3FF; --completed-border:#DDD6FE;
+  --cancelled-color:#6B7280; --cancelled-bg:#F9FAFB; --cancelled-border:#D1D5DB;
+  --rejected-color: #DC2626; --rejected-bg: #FEF2F2; --rejected-border: #FECACA;
+  --noshow-color:  #EA580C;  --noshow-bg:  #FFF7ED;  --noshow-border:  #FED7AA;
+
+  /* KPI card accent overrides (via --kpi-accent) */
+  --kpi-radius:   10px;
+
+  /* Layout */
+  --sidebar-w:    224px;
+  --topbar-h:     56px;
+  --radius:       10px;
+  --radius-sm:    6px;
+  --radius-lg:    14px;
+
+  /* Shadow */
+  --shadow-xs:    0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm:    0 1px 4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.09), 0 2px 4px rgba(0,0,0,0.04);
+}
+
+/* ── 2. RESET ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+
+/* ── 3. LOGIN SCREEN ──────────────────────────────────────── */
+#loginScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0D0F12;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  background: #161A20;
+  border: 1px solid #252A33;
+  border-radius: 16px;
+  padding: 36px 32px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-logo .logo-icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 12px rgba(201,151,26,0.5));
+}
+
+.login-logo h1 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #F0E8D8;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.login-logo p {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+.login-field { margin-bottom: 14px; }
+
+.login-field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #6B7280;
+  margin-bottom: 6px;
+}
+
+.login-field input {
+  width: 100%;
+  background: #0D0F12;
+  border: 1px solid #2E333D;
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: #F0E8D8;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.login-field input:focus { border-color: var(--gold); }
+
+.btn-login {
+  width: 100%;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  border-radius: 50px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: all 0.15s;
+  margin-top: 4px;
+}
+
+.btn-login:hover:not(:disabled) { background: var(--gold-lt); }
+.btn-login:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.login-error {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(220,38,38,0.12);
+  border: 1px solid rgba(220,38,38,0.25);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #F87171;
+  text-align: center;
+}
+.login-error.visible { display: block; }
+
+/* ── 4. APP SHELL ─────────────────────────────────────────── */
+#appShell { display: none; height: 100vh; overflow: hidden; }
+#appShell.visible { display: flex; }
+
+/* ── 5. SIDEBAR ───────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: #111318;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-right: 1px solid #1E2128;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+
+.sidebar-brand {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid #1E2128;
+  flex-shrink: 0;
+}
+
+.sidebar-brand .brand-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F0E8D8;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-brand .brand-name .brand-icon { font-size: 16px; }
+
+.sidebar-brand .brand-sub {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 3px;
+  padding-left: 24px;
+}
+
+.sidebar-brand .court-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  margin-left: 24px;
+  background: rgba(201,151,26,0.12);
+  border: 1px solid rgba(201,151,26,0.25);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+
+.nav-group-label {
+  padding: 14px 16px 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #3E4452;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  margin: 1px 8px;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  color: #8892A0;
+  font-size: 13px;
+  font-weight: 500;
+  width: calc(100% - 16px);
+  text-align: left;
+  transition: all 0.12s;
+  cursor: pointer;
+}
+
+.nav-item:hover { background: #1A1E26; color: #C8D0DC; }
+
+.nav-item.active {
+  background: rgba(201,151,26,0.10);
+  color: var(--gold-lt);
+}
+
+.nav-item .nav-icon { font-size: 14px; flex-shrink: 0; width: 16px; text-align: center; }
+
+.nav-badge {
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  background: #DC2626;
+  color: #FFF;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.nav-badge.zero { background: #2E333D; color: #6B7280; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 10px 8px;
+  border-top: 1px solid #1E2128;
+  flex-shrink: 0;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  color: #5A6072;
+  font-size: 13px;
+  transition: all 0.12s;
+}
+.btn-logout:hover { background: rgba(220,38,38,0.08); color: #F87171; }
+
+/* ── 6. MAIN AREA ─────────────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── 7. TOPBAR ────────────────────────────────────────────── */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.topbar-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-secondary);
+  padding: 4px;
+}
+
+.topbar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-clock {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+
+.btn-refresh:hover { border-color: var(--gold); color: var(--text-primary); }
+.btn-refresh.loading .refresh-icon { display: inline-block; animation: spin 0.7s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── 8. PAGE CONTENT ──────────────────────────────────────── */
+.page-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.page { display: none; padding: 20px; }
+.page.active { display: block; }
+
+/* ── 9. REUSABLE: SECTION TITLE ───────────────────────────── */
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── 10. REUSABLE: KPI CARDS ──────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--kpi-radius);
+  padding: 16px;
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.kpi-card:hover { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--kpi-accent, var(--gold));
+}
+
+.kpi-icon {
+  font-size: 18px;
+  margin-bottom: 8px;
+  display: block;
+  opacity: 0.75;
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.kpi-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ── 11. REUSABLE: STATUS BADGE ───────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.status-badge.pending   { background: var(--pending-bg);   color: var(--pending-color);   border: 1px solid var(--pending-border); }
+.status-badge.verified  { background: var(--verified-bg);  color: var(--verified-color);  border: 1px solid var(--verified-border); }
+.status-badge.confirmed { background: var(--confirmed-bg); color: var(--confirmed-color); border: 1px solid var(--confirmed-border); }
+.status-badge.completed { background: var(--completed-bg); color: var(--completed-color); border: 1px solid var(--completed-border); }
+.status-badge.cancelled { background: var(--cancelled-bg); color: var(--cancelled-color); border: 1px solid var(--cancelled-border); }
+.status-badge.rejected  { background: var(--rejected-bg);  color: var(--rejected-color);  border: 1px solid var(--rejected-border); }
+.status-badge.noshow    { background: var(--noshow-bg);    color: var(--noshow-color);    border: 1px solid var(--noshow-border); }
+
+/* ── 12. REUSABLE: SKELETON LOADER ───────────────────────── */
+.skeleton-block {
+  background: linear-gradient(90deg, #EDEEF1 25%, #F5F6F8 50%, #EDEEF1 75%);
+  background-size: 400px 100%;
+  animation: skeleton-wave 1.4s ease-in-out infinite;
+  border-radius: 5px;
+}
+
+@keyframes skeleton-wave {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--kpi-radius);
+  padding: 16px;
+  box-shadow: var(--shadow-xs);
+}
+
+/* ── 13. REUSABLE: EMPTY STATE ───────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
+.empty-state .empty-msg  { font-size: 13px; font-weight: 500; }
+
+/* ── 14. REUSABLE: CARD PANEL ────────────────────────────── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title .panel-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-radius: 20px;
+  padding: 1px 7px;
+}
+
+.panel-body { padding: 0; }
+
+/* ── 15. REUSABLE: BOOKING ROW ───────────────────────────── */
+.booking-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.booking-row:last-child { border-bottom: none; }
+.booking-row:hover { background: #FAFBFC; }
+
+.booking-row .br-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--gold-bg);
+  color: var(--gold-dk);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--gold-border);
+}
+
+.booking-row .br-info { flex: 1; min-width: 0; }
+.booking-row .br-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.booking-row .br-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.booking-row .br-right { text-align: right; flex-shrink: 0; }
+.booking-row .br-time  { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.booking-row .br-id    { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-family: monospace; }
+
+/* ── 16. COURT STATUS CARD ────────────────────────────────── */
+.court-status-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-xs);
+  margin-bottom: 16px;
+}
+
+.court-status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.court-status-dot.available { background: var(--confirmed-color); box-shadow: 0 0 0 4px rgba(22,163,74,0.15); }
+.court-status-dot.in-use    { background: var(--pending-color);   box-shadow: 0 0 0 4px rgba(217,119,6,0.15); animation: pulse-dot 2s infinite; }
+.court-status-dot.closed    { background: var(--text-muted);      box-shadow: 0 0 0 4px rgba(147,153,168,0.15); }
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(217,119,6,0.15); }
+  50%       { box-shadow: 0 0 0 8px rgba(217,119,6,0.08); }
+}
+
+.court-status-info .cs-name   { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.court-status-info .cs-status { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.court-status-info .cs-time   { font-size: 11px; color: var(--text-muted); }
+
+/* ── 17. DASHBOARD LAYOUT ─────────────────────────────────── */
+.dash-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.dash-three-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* ── 18. CHARTS ───────────────────────────────────────────── */
+.chart-wrap {
+  padding: 16px;
+  position: relative;
+}
+
+canvas.chart-canvas {
+  width: 100%;
+  display: block;
+}
+
+/* ── 19. REUSABLE: ERROR BANNER ──────────────────────────── */
+#errorBanner {
+  display: none;
+  margin: 0 20px 0;
+  padding: 12px 16px;
+  background: var(--rejected-bg);
+  border: 1px solid var(--rejected-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rejected-color);
+}
+
+#errorBanner.visible { display: block; }
+
+/* ── 20. REUSABLE: TOAST ─────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  min-width: 240px;
+  max-width: 360px;
+  background: #1A1D23;
+  color: #F0E8D8;
+  padding: 12px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+
+#toast.show        { opacity: 1; transform: translateY(0); }
+#toast.toast-ok    { border-left: 3px solid var(--confirmed-color); }
+#toast.toast-error { border-left: 3px solid var(--rejected-color); }
+#toast.toast-info  { border-left: 3px solid var(--gold); }
+
+/* ── 21. REUSABLE: MODAL ──────────────────────────────────── */
+#modalOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#modalOverlay.open { display: flex; }
+
+#modalBox {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title { font-size: 15px; font-weight: 700; }
+
+.btn-modal-close {
+  width: 28px; height: 28px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  font-size: 16px;
+  color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s;
+}
+.btn-modal-close:hover { background: var(--border); }
+
+.modal-body { padding: 20px; }
+
+/* ── 22. REUSABLE: CONFIRM DIALOG ────────────────────────── */
+#confirmOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#confirmOverlay.open { display: flex; }
+
+#confirmBox {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 360px;
+  padding: 24px;
+  text-align: center;
+}
+
+.confirm-icon  { font-size: 36px; margin-bottom: 12px; }
+.confirm-msg   { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+.confirm-btns  { display: flex; gap: 10px; justify-content: center; }
+
+.btn-confirm-ok {
+  padding: 9px 20px;
+  background: var(--rejected-color);
+  color: #FFF;
+  border: none;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: opacity 0.15s;
+}
+.btn-confirm-ok:hover { opacity: 0.85; }
+
+.btn-confirm-cancel {
+  padding: 9px 20px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── 23. SIDEBAR OVERLAY (mobile) ─────────────────────────── */
+#sidebarOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 40;
+}
+
+/* ── 24. RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dash-three-col { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.25s;
+  }
+  .sidebar.open { transform: translateX(0); }
+  #sidebarOverlay.open { display: block; }
+  .topbar-menu-btn { display: block; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-two-col { grid-template-columns: 1fr; }
+  .dash-three-col { grid-template-columns: 1fr; }
+  .page { padding: 14px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .kpi-value { font-size: 22px; }
+  #toast { left: 16px; right: 16px; min-width: 0; }
+}
+
+/* ── 25. ACCESSIBILITY ────────────────────────────────────── */
+/* Focus rings: visible only on keyboard nav, not on click */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Suppress focus ring on mouse click for buttons */
+:focus:not(:focus-visible) { outline: none; }
+
+/* High-contrast focus for dark elements */
+.sidebar :focus-visible,
+#loginScreen :focus-visible {
+  outline-color: var(--gold-lt);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── 26. HORIZONTAL SCROLL FOR FUTURE TABLES ─────────────── */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 600px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: #FAFBFC; }
+
+/* ── 27. BOOKINGS MODULE ──────────────────────────────────── */
+.toolbar {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.search-input {
+  flex: 1; min-width: 180px; max-width: 320px;
+  padding: 8px 12px 8px 34px; border: 1px solid var(--border); border-radius: 50px;
+  font-size: 13px; color: var(--text-primary); background: var(--surface)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239399A8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
+  outline: none; transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--gold); }
+.filter-select {
+  padding: 8px 28px 8px 10px; border: 1px solid var(--border); border-radius: 50px;
+  font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--surface);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239399A8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  outline: none; cursor: pointer; transition: border-color 0.15s;
+}
+.filter-select:focus { border-color: var(--gold); }
+.btn-toolbar {
+  padding: 8px 14px; border: 1px solid var(--border); border-radius: 50px;
+  font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--surface);
+  white-space: nowrap; transition: all 0.15s;
+}
+.btn-toolbar:hover { border-color: var(--gold); color: var(--text-primary); }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); overflow: hidden; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
+.data-table th {
+  position: sticky; top: 0; z-index: 2; background: var(--bg);
+  padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+  cursor: pointer; user-select: none; transition: background 0.12s;
+}
+.data-table th:hover { background: #EDEEF1; color: var(--text-primary); }
+.data-table th.sorted-asc::after  { content: ' ↑'; color: var(--gold); }
+.data-table th.sorted-desc::after { content: ' ↓'; color: var(--gold); }
+.data-table th.no-sort { cursor: default; }
+.data-table th.no-sort:hover { background: var(--bg); }
+.data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text-primary); vertical-align: middle; }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: #FAFBFC; cursor: pointer; }
+.data-table tbody tr:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.cell-id { font-family: monospace; font-size: 11px; color: var(--text-muted); }
+.cell-name { font-weight: 600; }
+.cell-amount { font-weight: 700; }
+.cell-screenshot a { font-size: 11px; font-weight: 600; color: var(--verified-color); text-decoration: none; }
+.cell-screenshot a:hover { text-decoration: underline; }
+.btn-action {
+  padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border);
+  background: var(--surface); font-size: 11px; font-weight: 600;
+  color: var(--text-secondary); white-space: nowrap; transition: all 0.12s;
+}
+.btn-action:hover { border-color: var(--gold); color: var(--text-primary); background: var(--gold-bg); }
+.btn-action.action-verify   { border-color:var(--verified-border);  color:var(--verified-color);  background:var(--verified-bg); }
+.btn-action.action-confirm  { border-color:var(--confirmed-border); color:var(--confirmed-color); background:var(--confirmed-bg); }
+.btn-action.action-complete { border-color:var(--completed-border); color:var(--completed-color); background:var(--completed-bg); }
+.btn-action.action-cancel   { border-color:var(--rejected-border);  color:var(--rejected-color);  background:var(--rejected-bg); }
+.btn-action.action-reject   { border-color:var(--rejected-border);  color:var(--rejected-color);  background:var(--rejected-bg); }
+.btn-action.action-noshow   { border-color:var(--noshow-border);    color:var(--noshow-color);    background:var(--noshow-bg); }
+.pagination { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-top:1px solid var(--border); flex-wrap:wrap; gap:10px; }
+.pagination-info { font-size:12px; color:var(--text-muted); font-weight:500; }
+.pagination-btns { display:flex; gap:4px; align-items:center; }
+.btn-page { min-width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:6px; font-size:13px; font-weight:600; color:var(--text-secondary); background:var(--surface); transition:all 0.12s; padding:0 8px; }
+.btn-page:hover:not(:disabled) { border-color:var(--gold); color:var(--text-primary); }
+.btn-page.active { background:var(--text-primary); color:#FFF; border-color:var(--text-primary); }
+.btn-page:disabled { opacity:.35; cursor:not-allowed; }
+/* ── Drawer */
+#drawerOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:200; }
+#drawerOverlay.open { display:block; }
+#drawer { position:fixed; top:0; right:0; bottom:0; width:440px; max-width:100vw; background:var(--surface); box-shadow:-4px 0 24px rgba(0,0,0,0.12); z-index:201; display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.25s cubic-bezier(0.4,0,0.2,1); overflow:hidden; }
+#drawerOverlay.open #drawer { transform:translateX(0); }
+.drawer-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.drawer-title { font-size:14px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
+.btn-drawer-close { width:30px; height:30px; border:none; background:var(--bg); border-radius:50%; font-size:16px; color:var(--text-secondary); display:flex; align-items:center; justify-content:center; transition:background 0.12s; }
+.btn-drawer-close:hover { background:var(--border); }
+.drawer-body { flex:1; overflow-y:auto; padding:20px; }
+.drawer-section { margin-bottom:20px; }
+.drawer-section-title { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; }
+.drawer-field { display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border); gap:12px; }
+.drawer-field:last-child { border-bottom:none; }
+.drawer-field-label { font-size:12px; color:var(--text-muted); flex-shrink:0; width:120px; }
+.drawer-field-value { font-size:13px; font-weight:500; color:var(--text-primary); text-align:right; flex:1; }
+.drawer-screenshot { width:100%; border-radius:8px; border:1px solid var(--border); cursor:zoom-in; transition:transform 0.2s; display:block; }
+.drawer-screenshot:hover { transform:scale(1.02); }
+.drawer-actions { display:flex; gap:8px; flex-wrap:wrap; padding:16px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--bg); }
+.btn-drawer-action { flex:1; min-width:100px; padding:9px 12px; border-radius:50px; border:1px solid var(--border); font-size:12px; font-weight:700; text-align:center; background:var(--surface); color:var(--text-secondary); transition:all 0.15s; white-space:nowrap; }
+.btn-drawer-action:hover { border-color:var(--gold); color:var(--text-primary); }
+.btn-drawer-action.primary { background:var(--text-primary); color:#FFF; border-color:var(--text-primary); }
+.btn-drawer-action.primary:hover { background:#2A2D36; }
+.btn-drawer-action.danger { background:var(--rejected-bg); color:var(--rejected-color); border-color:var(--rejected-border); }
+.btn-drawer-action.danger:hover { background:var(--rejected-color); color:#FFF; }
+.btn-drawer-action:disabled { opacity:.4; cursor:not-allowed; }
+#screenshotZoom { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:900; align-items:center; justify-content:center; cursor:zoom-out; }
+#screenshotZoom.open { display:flex; }
+@media (max-width:768px) { #drawer { width:100vw; } .data-table { min-width:700px; } }
+/* ── Accessibility */
+:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+:focus:not(:focus-visible) { outline:none; }
+.sidebar :focus-visible, #loginScreen :focus-visible { outline-color:var(--gold-lt); }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; } }
+
+/* ── v1.1: MANUAL BOOKING PAGE ───────────────────────────────── */
+.mbook-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.mbook-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mbook-field.full { grid-column: 1 / -1; }
+
+.mbook-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.mbook-input, .mbook-select, .mbook-textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+.mbook-input:focus, .mbook-select:focus, .mbook-textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,151,26,0.12);
+}
+
+.mbook-input.error, .mbook-select.error { border-color: var(--rejected-color); }
+
+.mbook-textarea { min-height: 72px; resize: vertical; }
+
+/* Segmented control for session/source/payment */
+.seg-ctrl {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  width: 100%;
+}
+
+.seg-btn {
+  flex: 1;
+  padding: 9px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border);
+  transition: all 0.12s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seg-btn:last-child { border-right: none; }
+.seg-btn:hover { background: var(--bg); color: var(--text-primary); }
+.seg-btn.active {
+  background: var(--text-primary);
+  color: #FFF;
+}
+
+.seg-btn.active.gold { background: var(--gold); color: #000; }
+.seg-btn.active.green { background: var(--confirmed-color); color: #FFF; }
+.seg-btn.active.red   { background: var(--rejected-color); color: #FFF; }
+
+/* Pricing preview */
+.pricing-preview {
+  background: var(--gold-bg);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin: 4px 0;
+}
+
+.pricing-preview .pp-amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.pricing-preview .pp-label {
+  font-size: 11px;
+  color: var(--gold-dk);
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.pricing-preview .pp-breakdown {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+/* Customer lookup result */
+.customer-hint {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: none;
+}
+
+.customer-hint.found {
+  display: block;
+  background: var(--verified-bg);
+  color: var(--verified-color);
+  border: 1px solid var(--verified-border);
+}
+
+.customer-hint.new {
+  display: block;
+  background: var(--confirmed-bg);
+  color: var(--confirmed-color);
+  border: 1px solid var(--confirmed-border);
+}
+
+/* Customer lookup history mini-panel */
+.customer-history {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.customer-history.visible { display: block; }
+
+.ch-stat { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--border); }
+.ch-stat:last-child { border-bottom: none; }
+.ch-stat-label { color: var(--text-muted); }
+.ch-stat-value { font-weight: 700; color: var(--text-primary); }
+
+/* Messenger message preview */
+.msg-preview {
+  background: #1E2128;
+  border: 1px solid #2A2E38;
+  border-radius: var(--radius);
+  padding: 18px;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #E0E6F0;
+  white-space: pre-wrap;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.copy-btns { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
+.btn-copy {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.btn-copy:hover { border-color: var(--gold); color: var(--text-primary); }
+.btn-copy.primary { background: var(--gold); color: #000; border-color: var(--gold); }
+.btn-copy.primary:hover { background: var(--gold-lt); }
+.btn-copy.copied { background: var(--confirmed-color); color: #FFF; border-color: var(--confirmed-color); }
+
+/* Save button */
+.btn-save-booking {
+  width: 100%;
+  padding: 14px;
+  background: var(--text-primary);
+  color: #FFF;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.3px;
+}
+
+.btn-save-booking:hover:not(:disabled) { background: #2A2D36; transform: translateY(-1px); }
+.btn-save-booking:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* Floating action button */
+#fabNewBooking {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 52px;
+  height: 52px;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  border-radius: 50%;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+  text-decoration: none;
+}
+
+#fabNewBooking:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+
+/* Source badge on bookings table */
+.source-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.source-badge.website   { background: var(--verified-bg);  color: var(--verified-color); }
+.source-badge.messenger { background: var(--completed-bg); color: var(--completed-color); }
+.source-badge.walkin    { background: var(--confirmed-bg); color: var(--confirmed-color); }
+.source-badge.phone     { background: var(--pending-bg);   color: var(--pending-color); }
+.source-badge.admin     { background: var(--cancelled-bg); color: var(--text-secondary); }
+
+@media (max-width: 768px) {
+  .mbook-grid { grid-template-columns: 1fr; }
+  .mbook-field.full { grid-column: 1; }
+  #fabNewBooking { bottom: 16px; right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-icon">👑</span>
+      <h1>ALRAJJ PICKLEBALL</h1>
+      <p>Operations System</p>
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPwd" placeholder="Enter admin password" aria-label="Admin password"
+             autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') Auth.login()">
+    </div>
+    <button class="btn-login" id="loginBtn" onclick="Auth.login()" aria-label="Sign in to admin dashboard">Sign In</button>
+    <div class="login-error" id="loginErr">Incorrect password. Please try again.</div>
+  </div>
+</div>
+
+<!-- ══ APP SHELL ══════════════════════════════════════════════ -->
+<div id="appShell">
+
+  <!-- SIDEBAR OVERLAY -->
+  <div id="sidebarOverlay" onclick="Nav.closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <div class="brand-name">
+        <span class="brand-icon">👑</span> ALRAJJ PICKLEBALL
+      </div>
+      <div class="brand-sub">Operations System</div>
+      <div class="court-badge">🏓 Court 1 — Active</div>
+    </div>
+
+    <div class="nav-group-label">Operations</div>
+
+    <button class="nav-item" data-page="manual-booking" onclick="Nav.go('manual-booking',this)" style="background:rgba(201,151,26,0.08);color:var(--gold-lt);" id="navManualBooking">
+      <span class="nav-icon">✏️</span> Manual Booking
+    </button>
+
+    <button class="nav-item active" data-page="dashboard" onclick="Nav.go('dashboard',this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+
+    <button class="nav-item" data-page="bookings" onclick="Nav.go('bookings',this)">
+      <span class="nav-icon">📋</span> Bookings
+      <span class="nav-badge zero" id="navBadgePending">0</span>
+    </button>
+
+    <button class="nav-item" data-page="calendar" onclick="Nav.go('calendar',this)">
+      <span class="nav-icon">📅</span> Calendar
+    </button>
+
+    <button class="nav-item" data-page="customers" onclick="Nav.go('customers',this)">
+      <span class="nav-icon">👥</span> Customers
+    </button>
+
+    <div class="nav-group-label">Analytics</div>
+
+    <button class="nav-item" data-page="reports" onclick="Nav.go('reports',this)">
+      <span class="nav-icon">📈</span> Reports
+    </button>
+
+    <div class="nav-group-label">System</div>
+
+    <button class="nav-item" data-page="settings" onclick="Nav.go('settings',this)">
+      <span class="nav-icon">⚙️</span> Settings
+    </button>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="Auth.logout()">
+        <span>🚪</span> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="topbar-menu-btn" onclick="Nav.openSidebar()" aria-label="Open sidebar navigation">☰</button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="topbar-clock" id="topbarClock"></div>
+        <button class="btn-refresh" id="refreshBtn" onclick="Nav.refresh()" aria-label="Refresh dashboard data">
+          <span class="refresh-icon">↻</span> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- ERROR BANNER (global) -->
+    <div id="errorBanner" role="alert" aria-live="assertive"></div>
+
+    <!-- PAGE WRAP -->
+    <main class="page-wrap" id="pageWrap">
+
+      <!-- ════ DASHBOARD PAGE ════════════════════════════════ -->
+      <div class="page active" id="page-dashboard">
+
+        <!-- Court status -->
+        <div id="courtStatusWrap"></div>
+
+        <!-- KPI row 1: counts -->
+        <div class="section-title">Today's Operations</div>
+        <div class="kpi-grid" id="kpiToday"></div>
+
+        <!-- KPI row 2: revenue -->
+        <div class="section-title" style="margin-top:4px;">Revenue</div>
+        <div class="kpi-grid" id="kpiRevenue"></div>
+
+        <!-- KPI row 3: booking source (v1.1) -->
+        <div class="section-title" style="margin-top:4px;">Today by Source</div>
+        <div class="kpi-grid" id="kpiSources"></div>
+
+        <!-- Operations panels -->
+        <div class="dash-two-col">
+          <div id="panelUpcoming"></div>
+          <div id="panelPending"></div>
+        </div>
+
+        <div class="dash-two-col">
+          <div id="panelRecentBookings"></div>
+          <div id="panelRecentPayments"></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="section-title" style="margin-top:4px;">Trends (Last 14 Days)</div>
+        <div class="dash-two-col">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Daily Revenue</div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="chartRevenue" class="chart-canvas" height="140"></canvas>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Booking Status Breakdown</div>
+            </div>
+            <div class="chart-wrap" style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;">
+              <canvas id="chartDonut" width="140" height="140"></canvas>
+              <div id="donutLegend" style="font-size:11px;line-height:1.9;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-dashboard -->
+
+      <!-- ════ MANUAL BOOKING PAGE ═══════════════════════════ -->
+      <div class="page" id="page-manual-booking">
+        <div style="max-width:720px;margin:0 auto;">
+
+          <!-- Form card -->
+          <div class="panel" id="mbookFormPanel">
+            <div class="panel-header">
+              <div class="panel-title">✏️ Manual Booking</div>
+              <div style="font-size:11px;color:var(--text-muted);">Staff entry · target under 30 seconds</div>
+            </div>
+            <div class="panel-body" style="padding:20px;">
+
+              <div class="mbook-grid">
+
+                <!-- Mobile -->
+                <div class="mbook-field">
+                  <label class="mbook-label" for="mbPhone">Mobile Number *</label>
+                  <input class="mbook-input" id="mbPhone" type="tel" placeholder="09XXXXXXXXX"
+                         oninput="ManualBooking.lookupCustomer(this.value)"
+                         onkeydown="ManualBooking.handleKey(event)" autocomplete="off" />
+                  <div class="customer-hint" id="mbCustomerHint"></div>
+                  <div class="customer-history" id="mbCustomerHistory"></div>
+                </div>
+
+                <!-- Name -->
+                <div class="mbook-field">
+                  <label class="mbook-label" for="mbName">Customer Name *</label>
+                  <input class="mbook-input" id="mbName" type="text" placeholder="Full name"
+                         onkeydown="ManualBooking.handleKey(event)" />
+                </div>
+
+                <!-- Date -->
+                <div class="mbook-field">
+                  <label class="mbook-label" for="mbDate">Booking Date *</label>
+                  <input class="mbook-input" id="mbDate" type="date"
+                         onchange="ManualBooking.onDateChange()"
+                         onkeydown="ManualBooking.handleKey(event)" />
+                </div>
+
+                <!-- Start Time -->
+                <div class="mbook-field">
+                  <label class="mbook-label" for="mbStart">Start Time *</label>
+                  <select class="mbook-select" id="mbStart"
+                          onchange="ManualBooking.onPricingChange()"
+                          onkeydown="ManualBooking.handleKey(event)">
+                    <option value="">— select time —</option>
+                  </select>
+                </div>
+
+                <!-- Duration -->
+                <div class="mbook-field">
+                  <label class="mbook-label">Duration</label>
+                  <div class="seg-ctrl">
+                    <button class="seg-btn active" data-val="1" onclick="ManualBooking.setDuration(1,this)">1 Hour</button>
+                    <button class="seg-btn" data-val="2" onclick="ManualBooking.setDuration(2,this)">2 Hours</button>
+                    <button class="seg-btn" data-val="3" onclick="ManualBooking.setDuration(3,this)">3 Hours</button>
+                  </div>
+                </div>
+
+                <!-- Customer Type / Session -->
+                <div class="mbook-field">
+                  <label class="mbook-label">Customer Type</label>
+                  <div class="seg-ctrl">
+                    <button class="seg-btn active" data-val="regular" onclick="ManualBooking.setSession('regular',this)">Regular</button>
+                    <button class="seg-btn" data-val="student" onclick="ManualBooking.setSession('student',this)">Student</button>
+                    <button class="seg-btn" data-val="block3"  onclick="ManualBooking.setSession('block3',this)">3-Hr Block</button>
+                    <button class="seg-btn" data-val="corporate" onclick="ManualBooking.setSession('corporate',this)">Corporate</button>
+                  </div>
+                </div>
+
+                <!-- Pricing preview (full width) -->
+                <div class="mbook-field full">
+                  <div class="pricing-preview" id="mbPricingPreview">
+                    <div class="pp-amount" id="mbAmount">₱—</div>
+                    <div class="pp-label" id="mbRateLabel">Select date and time to calculate</div>
+                    <div class="pp-breakdown" id="mbBreakdown"></div>
+                  </div>
+                </div>
+
+                <!-- Booking Source -->
+                <div class="mbook-field">
+                  <label class="mbook-label">Booking Source</label>
+                  <div class="seg-ctrl" id="mbSourceCtrl">
+                    <button class="seg-btn active" data-val="Messenger" onclick="ManualBooking.setSource('Messenger',this)">💬 Messenger</button>
+                    <button class="seg-btn" data-val="Walk-in" onclick="ManualBooking.setSource('Walk-in',this)">🚶 Walk-in</button>
+                    <button class="seg-btn" data-val="Phone" onclick="ManualBooking.setSource('Phone',this)">📞 Phone</button>
+                    <button class="seg-btn" data-val="Facebook" onclick="ManualBooking.setSource('Facebook',this)">📘 Facebook</button>
+                    <button class="seg-btn" data-val="Admin" onclick="ManualBooking.setSource('Admin',this)">👤 Admin</button>
+                  </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="mbook-field">
+                  <label class="mbook-label">Payment Method</label>
+                  <div class="seg-ctrl">
+                    <button class="seg-btn active" data-val="GCash" onclick="ManualBooking.setPayment('GCash',this)">GCash</button>
+                    <button class="seg-btn" data-val="Cash" onclick="ManualBooking.setPayment('Cash',this)">Cash</button>
+                    <button class="seg-btn" data-val="Bank Transfer" onclick="ManualBooking.setPayment('Bank Transfer',this)">Bank</button>
+                  </div>
+                </div>
+
+                <!-- Payment Status -->
+                <div class="mbook-field">
+                  <label class="mbook-label">Payment Status</label>
+                  <div class="seg-ctrl">
+                    <button class="seg-btn active green" data-val="Paid" onclick="ManualBooking.setPayStatus('Paid',this)">✓ Paid</button>
+                    <button class="seg-btn" data-val="Pending" onclick="ManualBooking.setPayStatus('Pending',this)">⏳ Pending</button>
+                  </div>
+                </div>
+
+                <!-- Reference Number -->
+                <div class="mbook-field">
+                  <label class="mbook-label" for="mbRef">Reference Number <span style="opacity:.5;">(optional)</span></label>
+                  <input class="mbook-input" id="mbRef" type="text" placeholder="GCash ref or receipt no." />
+                </div>
+
+                <!-- Notes -->
+                <div class="mbook-field full">
+                  <label class="mbook-label" for="mbNotes">Notes <span style="opacity:.5;">(optional)</span></label>
+                  <textarea class="mbook-textarea" id="mbNotes" placeholder="Paddle rental, special requests…"></textarea>
+                </div>
+
+                <!-- Screenshot upload (optional for manual) -->
+                <div class="mbook-field full">
+                  <label class="mbook-label">Payment Screenshot <span style="opacity:.5;">(optional)</span></label>
+                  <div class="upload-zone" id="mbUploadZone" style="padding:18px;">
+                    <input type="file" id="mbPayFile" accept=".jpg,.jpeg,.png,.webp"
+                           onchange="ManualBooking.handleFileSelect(event)" />
+                    <span class="upload-icon" style="font-size:24px;">📸</span>
+                    <span class="upload-label" style="font-size:13px;">Upload screenshot</span>
+                    <span class="upload-hint">JPG, PNG, WEBP · max 10MB</span>
+                  </div>
+                  <div class="upload-preview" id="mbUploadPreview">
+                    <img id="mbPreviewImg" src="" alt="Preview" />
+                    <div class="upload-preview-info">
+                      <span id="mbFileName">—</span>
+                      <button class="btn-remove-upload" onclick="ManualBooking.removeUpload()">✕ Remove</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Validation message -->
+                <div class="mbook-field full" id="mbValidationWrap" style="display:none;">
+                  <div style="padding:10px 14px;background:var(--rejected-bg);border:1px solid var(--rejected-border);border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:var(--rejected-color);" id="mbValidation"></div>
+                </div>
+
+                <!-- Save -->
+                <div class="mbook-field full">
+                  <button class="btn-save-booking" id="mbSaveBtn" onclick="ManualBooking.save()">
+                    💾 Save Booking
+                  </button>
+                </div>
+
+              </div><!-- /mbook-grid -->
+            </div>
+          </div><!-- /panel -->
+
+          <!-- Confirmation card (hidden until saved) -->
+          <div class="panel" id="mbConfirmPanel" style="display:none;">
+            <div class="panel-header">
+              <div class="panel-title">✅ Booking Saved</div>
+              <button class="btn-toolbar" onclick="ManualBooking.reset()" style="font-size:12px;">+ New Booking</button>
+            </div>
+            <div class="panel-body" style="padding:20px;">
+              <div class="msg-preview" id="mbMsgPreview"></div>
+              <div class="copy-btns">
+                <button class="btn-copy primary" id="mbCopyMsgBtn" onclick="ManualBooking.copyMessage()">📋 Copy Confirmation</button>
+                <button class="btn-copy" onclick="ManualBooking.reset()">+ New Booking</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /page-manual-booking -->
+
+      <!-- ════ PLACEHOLDER PAGES (future modules) ═══════════ -->
+      <div class="page" id="page-bookings">
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <input class="search-input" id="booksSearch" type="search"
+                 placeholder="Search by ID, name, or phone…"
+                 oninput="Bookings.onSearch(this.value)"
+                 aria-label="Search bookings" />
+
+          <select class="filter-select" id="booksStatus" onchange="Bookings.onFilterStatus(this.value)" aria-label="Filter by status">
+            <option value="">All Statuses</option>
+            <option value="Pending Payment Verification">⏳ Pending</option>
+            <option value="Payment Verified">✔️ Verified</option>
+            <option value="Confirmed">✅ Confirmed</option>
+            <option value="Completed">🏆 Completed</option>
+            <option value="Cancelled">🚫 Cancelled</option>
+            <option value="Rejected">❌ Rejected</option>
+            <option value="No Show">⚠️ No Show</option>
+          </select>
+
+          <input class="filter-select" id="booksDate" type="date"
+                 onchange="Bookings.onFilterDate(this.value)"
+                 aria-label="Filter by date"
+                 style="font-size:12px;font-weight:600;padding:7px 10px;" />
+
+          <button class="btn-toolbar" onclick="Bookings.clearFilters()">Clear</button>
+          <button class="btn-toolbar" onclick="Bookings.reload()" style="margin-left:auto;" aria-label="Reload bookings">↻ Reload</button>
+          <span id="bookingsCount" style="font-size:12px;color:var(--text-muted);font-weight:500;white-space:nowrap;"></span>
+        </div>
+
+        <!-- Table -->
+        <div id="bookingsTableWrap"></div>
+      </div>
+
+      <div class="page" id="page-calendar">
+        <div class="empty-state">
+          <div class="empty-icon">📅</div>
+          <div class="empty-msg">Calendar — Module 3</div>
+        </div>
+      </div>
+
+      <div class="page" id="page-customers">
+        <div class="empty-state">
+          <div class="empty-icon">👥</div>
+          <div class="empty-msg">Customer Database — Module 4</div>
+        </div>
+      </div>
+
+      <div class="page" id="page-reports">
+        <div class="empty-state">
+          <div class="empty-icon">📈</div>
+          <div class="empty-msg">Reports — Module 5</div>
+        </div>
+      </div>
+
+      <div class="page" id="page-settings">
+        <div class="empty-state">
+          <div class="empty-icon">⚙️</div>
+          <div class="empty-msg">Settings — Module 6</div>
+        </div>
+      </div>
+
+    </main><!-- /page-wrap -->
+  </div><!-- /main -->
+</div><!-- /appShell -->
+
+<!-- ══ MODAL ══════════════════════════════════════════════════ -->
+<div id="modalOverlay" onclick="if(event.target===this)Modal.close()">
+  <div id="modalBox">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="btn-modal-close" onclick="Modal.close()" aria-label="Close dialog">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ══ CONFIRM DIALOG ══════════════════════════════════════════ -->
+<div id="confirmOverlay">
+  <div id="confirmBox">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-msg"  id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="Confirm.cancel()">Cancel</button>
+      <button class="btn-confirm-ok"     id="confirmOkBtn" onclick="Confirm.ok()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOOKING DRAWER ════════════════════════════════════ -->
+<div id="drawerOverlay" onclick="if(event.target===this)Drawer.close()" aria-label="Booking detail panel">
+  <div id="drawer" role="complementary" aria-label="Booking detail" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawerTitle">Booking Detail</div>
+      <button class="btn-drawer-close" onclick="Drawer.close()" aria-label="Close booking detail">✕</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-actions" id="drawerActions"></div>
+  </div>
+</div>
+
+<!-- ══ SCREENSHOT ZOOM ════════════════════════════════════ -->
+<div id="screenshotZoom" onclick="this.classList.remove('open')" aria-label="Payment screenshot full view">
+  <img src="" alt="Payment screenshot" style="max-width:92vw;max-height:92vh;border-radius:6px;" />
+</div>
+
+<!-- ══ TOAST ══════════════════════════════════════════════════ -->
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+'use strict';
+
+/* ================================================================
+   TABLE OF CONTENTS
+   -----------------
+   1.  CONFIG          — all configurable values, one place
+   2.  STATUS          — booking status enum
+   3.  STATUS_META     — display metadata per status
+   4.  CHART_COLORS    — chart palette
+   5.  TRANSITIONS     — valid state machine transitions
+   6.  Util            — pure utility functions (date, currency, DOM)
+   7.  API             — single network layer
+   8.  ActivityLog     — stub for future audit trail
+   9.  Booking         — model normalizer (raw GAS row → Booking object)
+   10. BookingRepository — single source of truth for booking data
+   11. FilterSpec      — composable filter builder
+   12. BookingStateMachine — transition validation
+   13. ActionDispatcher — centralized action handler
+   14. Table           — reusable table renderer (sort, paginate, search)
+   15. Drawer          — reusable booking detail panel
+   16. Toast           — global notification
+   17. Modal           — generic modal window
+   18. Confirm         — confirmation dialog
+   19. Auth            — login, session, logout
+   20. Clock           — topbar time display
+   21. Nav             — page routing
+   22. Dashboard       — Module 1 home page
+   23. Bookings        — Module 2 booking management page
+   24. Chart           — canvas chart renderers
+   25. INIT            — boot sequence
+================================================================ */
+
+// ================================================================
+// 1. CONFIG — single source of application settings
+// All configurable values live here. No magic numbers elsewhere.
+// ================================================================
+// ── DEPLOYMENT CONFIGURATION ─────────────────────────────────────────────────
+// Set these three values before deploying. Do not commit real values to git.
+// APPS_SCRIPT_URL : Your Apps Script web app URL (same one used by the customer page)
+// ADMIN_API_KEY   : Must match the ADMIN_KEY value in your Script Properties
+// ADMIN_PASSWORD  : The login password for this dashboard (store it somewhere safe)
+// ─────────────────────────────────────────────────────────────────────────────
+const DEPLOY = {
+  APPS_SCRIPT_URL: 'PASTE_YOUR_APPS_SCRIPT_URL_HERE',  // ← replace before deploy
+  ADMIN_API_KEY:   'CHANGE_ME_BEFORE_DEPLOY',           // ← replace before deploy
+  ADMIN_PASSWORD:  'CHANGE_ME_DASHBOARD_PASSWORD',      // ← replace before deploy
+};
+
+// Guard: warn loudly in the console if the file is deployed with placeholders.
+// This does not prevent login (intentional — you can still test layout),
+// but all API calls will fail with a TypeError, which the catch blocks handle.
+(function checkDeployConfig() {
+  const bad = Object.entries(DEPLOY).filter(([, v]) => v.startsWith('CHANGE_ME') || v.includes('PASTE_YOUR'));
+  if (bad.length) {
+    console.error('[Alrajj Admin] DEPLOYMENT CONFIG NOT SET:', bad.map(([k]) => k).join(', '));
+  }
+})();
+
+const CONFIG = {
+  // ── Endpoints & Auth ─────────────────────────────────────────
+  APPS_SCRIPT_URL:   DEPLOY.APPS_SCRIPT_URL,
+  ADMIN_API_KEY:     DEPLOY.ADMIN_API_KEY,
+  ADMIN_PASSWORD:    DEPLOY.ADMIN_PASSWORD,
+
+  // ── Branch & Court (Phase 1: single court) ───────────────────
+  // To support multiple courts: replace scalar with array/map and
+  // add a court selector to the UI. No other code changes needed.
+  BRANCH_ID:         1,
+  BRANCH_LABEL:      'Marawi City',
+  COURT_ID:          1,
+  COURT_LABEL:       'Court 1',
+  COURT_OPEN_HOUR:   9,
+  COURT_CLOSE_HOUR:  22,
+
+  // ── Cache & Polling ───────────────────────────────────────────
+  CACHE_TTL_MS:      60000,   // 60 s — stale-while-revalidate threshold
+  POLL_INTERVAL_MS:  60000,   // background refresh interval
+
+  // ── Table ─────────────────────────────────────────────────────
+  PAGE_SIZE:         20,      // rows per page
+
+  // ── Feature flags (false = not yet built) ────────────────────
+  FEATURE_MULTI_COURT:  false,
+  FEATURE_AUDIT_LOG:    false,
+  FEATURE_PERMISSIONS:  false,
+};
+
+// ================================================================
+// 2. STATUS — central booking status enum
+// Mirror kept in GAS BOOKING_STATUS. Both must stay in sync.
+// ================================================================
+const STATUS = {
+  PENDING:   'Pending Payment Verification',
+  VERIFIED:  'Payment Verified',
+  CONFIRMED: 'Confirmed',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled',
+  REJECTED:  'Rejected',
+  NO_SHOW:   'No Show',
+};
+
+// ================================================================
+// 3. STATUS_META — display metadata for each status
+// ================================================================
+const STATUS_META = {
+  'Pending Payment Verification': { cls: 'pending',   icon: '⏳', label: 'Pending',   shortLabel: 'Pending' },
+  'Payment Verified':             { cls: 'verified',  icon: '✔️', label: 'Verified',  shortLabel: 'Verified' },
+  'Confirmed':                    { cls: 'confirmed', icon: '✅', label: 'Confirmed', shortLabel: 'Confirmed' },
+  'Completed':                    { cls: 'completed', icon: '🏆', label: 'Completed', shortLabel: 'Done' },
+  'Cancelled':                    { cls: 'cancelled', icon: '🚫', label: 'Cancelled', shortLabel: 'Cancelled' },
+  'Rejected':                     { cls: 'rejected',  icon: '❌', label: 'Rejected',  shortLabel: 'Rejected' },
+  'No Show':                      { cls: 'noshow',    icon: '⚠️', label: 'No Show',   shortLabel: 'No Show' },
+};
+
+// ================================================================
+// 4. CHART_COLORS
+// ================================================================
+const CHART_COLORS = {
+  'Pending Payment Verification': '#D97706',
+  'Payment Verified':             '#2563EB',
+  'Confirmed':                    '#16A34A',
+  'Completed':                    '#7C3AED',
+  'Cancelled':                    '#9CA3AF',
+  'Rejected':                     '#DC2626',
+  'No Show':                      '#EA580C',
+};
+
+// ================================================================
+// 5. TRANSITIONS — valid state machine transitions
+// Mirrors GAS VALID_TRANSITIONS. Client validates for UX;
+// GAS validates again for data integrity (defense-in-depth).
+// ================================================================
+const TRANSITIONS = {
+  [STATUS.PENDING]:   [STATUS.VERIFIED, STATUS.REJECTED, STATUS.CANCELLED],
+  [STATUS.VERIFIED]:  [STATUS.CONFIRMED, STATUS.REJECTED, STATUS.CANCELLED],
+  [STATUS.CONFIRMED]: [STATUS.COMPLETED, STATUS.NO_SHOW, STATUS.CANCELLED],
+  [STATUS.COMPLETED]: [],
+  [STATUS.REJECTED]:  [],
+  [STATUS.CANCELLED]: [],
+  [STATUS.NO_SHOW]:   [],
+};
+
+// ================================================================
+// 6. Util — pure utility functions
+//
+// Responsibility: date formatting, currency, XSS escaping, DOM helpers,
+//   skeleton/empty state HTML generators.
+// Why it exists: prevents one-off formatting scattered across modules.
+// Interactions: called by every other module. Has no dependencies.
+// ================================================================
+const Util = {
+  /** XSS guard — call before every innerHTML insertion of user data */
+  esc(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  },
+
+  /** Currency — always use this, never concatenate ₱ manually */
+  peso(n) {
+    const v = parseFloat(n) || 0;
+    return '₱' + v.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  },
+
+  /** Short date: "Jul 4, 2026" */
+  fmtDate(s) {
+    if (!s) return '—';
+    return new Date(s + 'T12:00:00').toLocaleDateString('en-PH', {
+      month: 'short', day: 'numeric', year: 'numeric',
+    });
+  },
+
+  /** Long date: "Friday, July 4, 2026" */
+  fmtDateLong(s) {
+    if (!s) return '—';
+    return new Date(s + 'T12:00:00').toLocaleDateString('en-PH', {
+      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+    });
+  },
+
+  /** Relative time: "2 hours ago", "just now" */
+  fmtRelative(isoStr) {
+    if (!isoStr) return '—';
+    const diff = Date.now() - new Date(isoStr).getTime();
+    if (diff < 60000)  return 'just now';
+    if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+    return Math.floor(diff/86400000) + 'd ago';
+  },
+
+  /** ISO date string from Date: "2026-07-04" */
+  toDateKey(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' +
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0');
+  },
+
+  /** Today's date key */
+  today() { return Util.toDateKey(new Date()); },
+
+  /** First letter of name for avatar circle */
+  initial(name) { return (name || '?').trim()[0].toUpperCase(); },
+
+  /** Status badge HTML */
+  badge(status) {
+    const m = STATUS_META[status] || { cls:'pending', icon:'⏳', label: status };
+    return `<span class="status-badge ${m.cls}" aria-label="${Util.esc(m.label)}">${m.icon} ${Util.esc(m.label)}</span>`;
+  },
+
+  /** Skeleton loader HTML — n repeating blocks at height h */
+  skeleton(n, h) {
+    h = h || 16;
+    return Array(n).fill(
+      `<div class="skeleton-block" style="height:${h}px;margin-bottom:8px;border-radius:4px;"></div>`
+    ).join('');
+  },
+
+  /** Empty state HTML */
+  empty(icon, msg) {
+    return `<div class="empty-state">
+      <div class="empty-icon">${Util.esc(icon)}</div>
+      <div class="empty-msg">${Util.esc(msg)}</div>
+    </div>`;
+  },
+
+  /** Get a DOM element; throws clearly if missing */
+  el(id) {
+    const el = document.getElementById(id);
+    if (!el) throw new Error('Missing DOM element: #' + id);
+    return el;
+  },
+
+  /** Set innerHTML safely, wrapping in try/catch */
+  setHtml(id, html) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  },
+};
+
+// ================================================================
+// 7. API — single network layer
+//
+// Responsibility: all fetch() calls. No module touches fetch() directly.
+// Why it exists: one place to add auth headers, logging, retries.
+// Interactions: called only by BookingRepository. Never by UI modules.
+// ================================================================
+const API = {
+  async get(action, params) {
+    const url = new URL(CONFIG.APPS_SCRIPT_URL);
+    url.searchParams.set('action', action);
+    url.searchParams.set('adminKey', CONFIG.ADMIN_API_KEY);
+    if (params) Object.entries(params).forEach(([k,v]) => { if (v != null) url.searchParams.set(k, String(v)); });
+    const res  = await fetch(url.toString(), { method:'GET', credentials:'omit', redirect:'follow' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error && !data.success) throw new Error(data.error);
+    return data;
+  },
+
+  async post(payload) {
+    const body = Object.assign({ adminKey: CONFIG.ADMIN_API_KEY }, payload);
+    const res  = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method:'POST', credentials:'omit', redirect:'follow',
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error && !data.success) throw new Error(data.error);
+    return data;
+  },
+};
+
+// ================================================================
+// 8. ActivityLog — stub for future audit trail
+//
+// Responsibility: emit events for auditable actions.
+// Why it exists: ActionDispatcher calls this on every state change.
+//   When the Audit Log module is built, replace the no-op with real
+//   persistence. Zero refactoring of callers required.
+// Interactions: called by ActionDispatcher. Nothing else.
+// ================================================================
+const ActivityLog = {
+  /**
+   * Record an auditable event.
+   * @param {string} action  — e.g. 'booking.confirmed', 'auth.login'
+   * @param {object} payload — arbitrary context (bookingId, actor, etc.)
+   */
+  record(action, payload) {
+    // Stub — no-op until Audit Log module is implemented.
+    // Implementation: persist to a separate GAS endpoint / Sheets tab.
+    if (CONFIG.FEATURE_AUDIT_LOG) {
+      // future: API.post({ action: 'logActivity', event: action, ...payload });
+    }
+  },
+};
+
+// ================================================================
+// 9. Booking — model normalizer
+//
+// Responsibility: convert raw GAS response rows into typed Booking objects.
+//   Never let raw arrays reach the UI. Every field has a defined type and
+//   a sensible default. modelVersion allows future schema migrations.
+// Why it exists: decouples UI from GAS response shape. If GAS field names
+//   change, update only Booking.from(). Nothing else breaks.
+// Interactions: called only by BookingRepository._normalize().
+// ================================================================
+const Booking = {
+  MODEL_VERSION: 1,
+
+  /**
+   * Normalize a raw GAS booking record into a typed Booking object.
+   * Returns a frozen plain object — UI components must never mutate it.
+   * @param {object} raw — record from GAS handleGetBookings / handleGetDashboard
+   * @returns {object} normalized Booking
+   */
+  from(raw) {
+    if (!raw || !raw.bookingId) throw new Error('Booking.from: invalid raw record');
+
+    const status = raw.bookingStatus || raw.internalStatus || STATUS.PENDING;
+
+    return Object.freeze({
+      // ── Identity
+      id:             raw.bookingId,
+      referenceNumber: raw.bookingId,    // same value, two semantic names
+
+      // ── Customer
+      customerName:   String(raw.name  || '').trim(),
+      mobile:         String(raw.phone || '').trim(),
+
+      // ── Booking time
+      bookingDate:    String(raw.date  || ''),
+      bookingTime:    String(raw.timeLabel || ''),
+      startHour:      parseInt(raw.startHour) || 0,
+      endHour:        parseInt(raw.endHour)   || 0,
+      hours:          parseInt(raw.totalHours) || 1,
+
+      // ── Court / Branch (multi-court ready)
+      courtId:        raw.courtId    || CONFIG.COURT_ID,
+      courtLabel:     raw.courtLabel || CONFIG.COURT_LABEL,
+      branchId:       raw.branchId   || CONFIG.BRANCH_ID,
+      branchLabel:    raw.branchLabel || CONFIG.BRANCH_LABEL,
+
+      // ── Session
+      session:        String(raw.session || ''),
+      rate:           String(raw.rate    || ''),
+      paddles:        parseInt(raw.paddles) || 0,
+
+      // ── Financial
+      amount:         parseFloat(raw.total) || 0,
+      paymentMethod:  String(raw.paymentMethod || ''),
+
+      // ── Status
+      status:         status,
+      paymentStatus:  Booking._derivePaymentStatus(status),
+      internalStatus: String(raw.internalStatus || ''),
+
+      // ── Screenshot
+      screenshot:     String(raw.driveUrl  || ''),
+      screenshotName: String(raw.filename  || ''),
+
+      // ── Metadata
+      notes:          String(raw.notes || ''),
+      createdAt:      raw.createdAt  || null,
+      updatedAt:      raw.updatedAt  || null,
+
+      // ── Extensions: future fields (memberships, promos, packages)
+      // Place them here when they exist, not before.
+      bookingSource: String(raw.bookingSource || 'Website').trim(),
+      extensions:     {},
+
+      // ── Schema version for future migration support
+      modelVersion:   Booking.MODEL_VERSION,
+    });
+  },
+
+  /** Derive a human-readable payment status from booking status */
+  _derivePaymentStatus(status) {
+    if (status === STATUS.PENDING)   return 'Awaiting';
+    if (status === STATUS.REJECTED)  return 'Rejected';
+    if (status === STATUS.CANCELLED) return 'Cancelled';
+    return 'Received';   // Verified, Confirmed, Completed, No Show
+  },
+};
+
+// ================================================================
+// 10. BookingRepository — single source of truth for booking data
+//
+// Responsibility: fetch, normalize, cache, and provide querying.
+//   No module other than this one may call API.get('getBookings').
+// Why it exists: one cache, one normalization pass, instant UI queries.
+// Interactions: Dashboard, Bookings, Calendar, Customers, Reports all
+//   read from this. Only this module writes to the API cache.
+// ================================================================
+const BookingRepository = {
+  _store:      [],      // array of normalized Booking objects
+  _index:      {},      // id → Booking (O(1) lookup)
+  _fetchedAt:  null,    // ISO timestamp of last successful fetch
+  _sinceTs:    null,    // used for ?since= optimisation on next poll
+
+  /**
+   * Fetch all bookings, normalize, and cache.
+   * Calls API once. All subsequent reads are synchronous against _store.
+   * @param {boolean} silent — if true, skip showing errors on unchanged response
+   */
+  async fetch(silent) {
+    const params = {};
+    if (BookingRepository._sinceTs) params.since = BookingRepository._sinceTs;
+
+    const data = await API.get('getBookings', params);
+
+    // ?since= optimisation: GAS says nothing changed
+    if (data.unchanged) return false; // false = no new data
+
+    // Validate response shape
+    if (!Array.isArray(data.bookings)) {
+      throw new Error('BookingRepository: unexpected response shape');
+    }
+
+    BookingRepository._normalize(data.bookings);
+    BookingRepository._fetchedAt = new Date().toISOString();
+    BookingRepository._sinceTs   = BookingRepository._fetchedAt;
+    return true; // true = new data loaded
+  },
+
+  /** Force a full refresh — ignores the ?since= optimisation */
+  async refresh() {
+    BookingRepository._sinceTs = null;
+    return BookingRepository.fetch(false);
+  },
+
+  /** Internal: normalize raw records and rebuild index — O(n), no cloning */
+  _normalize(rawArray) {
+    const store = [];
+    const index = {};
+    for (let i = 0; i < rawArray.length; i++) {
+      try {
+        const b = Booking.from(rawArray[i]);
+        store.push(b);
+        index[b.id] = b;
+      } catch (e) {
+        // Skip malformed records; don't break the entire load
+        console.error('BookingRepository: skipping bad record', e.message);
+      }
+    }
+    BookingRepository._store = store;
+    BookingRepository._index = index;
+  },
+
+  /** O(1) lookup by booking ID */
+  getById(id) {
+    return BookingRepository._index[id] || null;
+  },
+
+  /** Return full store — caller must not mutate */
+  getAll() {
+    return BookingRepository._store;
+  },
+
+  /**
+   * Apply a FilterSpec predicate — O(n) single pass.
+   * @param {function} predicate — from FilterSpec.build()
+   */
+  filter(predicate) {
+    if (!predicate) return BookingRepository._store.slice();
+    return BookingRepository._store.filter(predicate);
+  },
+
+  /**
+   * Full-text search across id, customerName, mobile — O(n).
+   * @param {string} query
+   */
+  search(query) {
+    if (!query) return BookingRepository._store.slice();
+    const q = query.toLowerCase();
+    return BookingRepository._store.filter(b =>
+      b.id.toLowerCase().includes(q) ||
+      b.customerName.toLowerCase().includes(q) ||
+      b.mobile.includes(q)
+    );
+  },
+
+  /**
+   * Sort a result array by field — returns new array, never mutates store.
+   * @param {Booking[]} arr
+   * @param {string} field
+   * @param {'asc'|'desc'} dir
+   */
+  sort(arr, field, dir) {
+    const d = dir === 'asc' ? 1 : -1;
+    return arr.slice().sort((a, b) => {
+      const av = a[field], bv = b[field];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === 'number') return (av - bv) * d;
+      return String(av).localeCompare(String(bv)) * d;
+    });
+  },
+
+  /**
+   * Paginate a result array — returns { items, total, page, pages }.
+   * @param {Booking[]} arr
+   * @param {number} page — 1-indexed
+   * @param {number} size
+   */
+  paginate(arr, page, size) {
+    const total = arr.length;
+    const pages = Math.max(1, Math.ceil(total / size));
+    const p     = Math.min(Math.max(1, page), pages);
+    const start = (p - 1) * size;
+    return { items: arr.slice(start, start + size), total, page: p, pages };
+  },
+};
+
+// ================================================================
+// 11. FilterSpec — composable predicate builder
+//
+// Responsibility: build a composable filter predicate from named criteria.
+//   Supports any combination of status, date, search, courtId, branchId.
+//   Adding future filters (promo code, membership, etc.) requires one
+//   new .byX() method — no other code changes.
+// Why it exists: eliminates scattered if/else filter logic across modules.
+// Interactions: Bookings, Calendar, Reports pass a FilterSpec to
+//   BookingRepository.filter(spec.build()).
+// ================================================================
+const FilterSpec = {
+  create() {
+    const criteria = [];
+    const spec = {
+      byStatus(status)   { if (status)   criteria.push(b => b.status === status);   return spec; },
+      byDate(date)       { if (date)     criteria.push(b => b.bookingDate === date); return spec; },
+      bySearch(query)    {
+        if (query) {
+          const q = query.toLowerCase();
+          criteria.push(b =>
+            b.id.toLowerCase().includes(q) ||
+            b.customerName.toLowerCase().includes(q) ||
+            b.mobile.includes(q)
+          );
+        }
+        return spec;
+      },
+      byCourtId(id)      { if (id != null) criteria.push(b => b.courtId === id);    return spec; },
+      byBranchId(id)     { if (id != null) criteria.push(b => b.branchId === id);   return spec; },
+      byDateRange(from, to) {
+        if (from) criteria.push(b => b.bookingDate >= from);
+        if (to)   criteria.push(b => b.bookingDate <= to);
+        return spec;
+      },
+      /** Returns a predicate function for BookingRepository.filter() */
+      build() {
+        if (criteria.length === 0) return null;
+        return (b) => criteria.every(fn => fn(b));
+      },
+    };
+    return spec;
+  },
+};
+
+// ================================================================
+// 12. BookingStateMachine — transition validation
+//
+// Responsibility: determine whether a status transition is legal.
+//   Frontend validates before showing action buttons (UX).
+//   GAS validates before writing (data integrity).
+// Why it exists: removes scattered status-check if/else from UI code.
+// Interactions: ActionDispatcher calls canTransition() before any action.
+//   Table/Drawer call getAllowed() to decide which buttons to show.
+// ================================================================
+const BookingStateMachine = {
+  /**
+   * Returns true if the transition from → to is valid.
+   * @param {string} from — current STATUS value
+   * @param {string} to   — requested STATUS value
+   */
+  canTransition(from, to) {
+    const allowed = TRANSITIONS[from];
+    return Array.isArray(allowed) && allowed.includes(to);
+  },
+
+  /**
+   * Returns the list of STATUS values reachable from `from`.
+   * Empty array = terminal state.
+   * @param {string} from
+   */
+  getAllowed(from) {
+    return TRANSITIONS[from] || [];
+  },
+
+  /** True if status is terminal (no valid next states) */
+  isTerminal(status) {
+    const allowed = TRANSITIONS[status];
+    return Array.isArray(allowed) && allowed.length === 0;
+  },
+};
+
+// ================================================================
+// 13. ActionDispatcher — centralized action handler
+//
+// Responsibility: the ONLY place that sends status-update API calls.
+//   Validates transition via BookingStateMachine before any API call.
+//   Calls Confirm for destructive actions. Refreshes repository on success.
+//   Emits ActivityLog events. Never contains UI rendering.
+// Why it exists: prevents duplicated click handlers across Table/Drawer/Dashboard.
+// Interactions: Table rows, Drawer buttons, Dashboard panels all call
+//   ActionDispatcher.dispatch(). Never call API.post directly from UI.
+//
+// canPerform: function(action) → boolean
+//   Always returns true now. When staff permissions are real,
+//   pass Session.can as canPerform. No refactoring of callers required.
+// ================================================================
+const ActionDispatcher = {
+  // Action → { label, icon, toStatus, destructive, confirmMsg }
+  ACTIONS: {
+    verify:   { label:'Verify Payment', icon:'✔️',  toStatus: STATUS.VERIFIED,   destructive: false },
+    confirm:  { label:'Confirm',        icon:'✅',  toStatus: STATUS.CONFIRMED,  destructive: false },
+    complete: { label:'Complete',       icon:'🏆',  toStatus: STATUS.COMPLETED,  destructive: false },
+    cancel:   { label:'Cancel',         icon:'🚫',  toStatus: STATUS.CANCELLED,  destructive: true,
+                confirmMsg: 'Cancel this booking? This cannot be undone.' },
+    reject:   { label:'Reject',         icon:'❌',  toStatus: STATUS.REJECTED,   destructive: true,
+                confirmMsg: 'Reject this booking? This cannot be undone.' },
+    noshow:   { label:'No Show',        icon:'⚠️',  toStatus: STATUS.NO_SHOW,    destructive: true,
+                confirmMsg: 'Mark this booking as No Show?' },
+  },
+
+  /**
+   * Dispatch a booking action.
+   * @param {string}   actionKey    — key from ActionDispatcher.ACTIONS
+   * @param {object}   booking      — normalized Booking object
+   * @param {function} canPerform   — permission check fn(actionKey) → bool
+   * @param {function} onSuccess    — optional callback after successful update
+   */
+  dispatch(actionKey, booking, canPerform, onSuccess) {
+    const def = ActionDispatcher.ACTIONS[actionKey];
+    if (!def) { Toast.error('Unknown action: ' + actionKey); return; }
+
+    // Permission check (stub always returns true)
+    canPerform = canPerform || (() => true);
+    if (!canPerform(actionKey)) { Toast.error('You do not have permission to perform this action.'); return; }
+
+    // State machine validation
+    if (!BookingStateMachine.canTransition(booking.status, def.toStatus)) {
+      Toast.error('Invalid transition: ' + booking.status + ' → ' + def.toStatus);
+      return;
+    }
+
+    const doIt = () => ActionDispatcher._execute(actionKey, def, booking, onSuccess);
+
+    if (def.destructive) {
+      Confirm.show(
+        def.confirmMsg || 'Are you sure?',
+        def.icon,
+        def.label,
+        doIt
+      );
+    } else {
+      doIt();
+    }
+  },
+
+  async _execute(actionKey, def, booking, onSuccess) {
+    try {
+      const result = await API.post({
+        action:         'updateStatus',
+        bookingId:      booking.id,
+        fromStatus:     booking.status,    // sent for GAS-side transition validation
+        businessStatus: def.toStatus,
+      });
+
+      // Refresh repository so all modules see updated data
+      await BookingRepository.refresh();
+
+      Toast.ok(def.icon + ' ' + def.label + ' — ' + booking.id);
+      ActivityLog.record('booking.' + actionKey, { bookingId: booking.id, toStatus: def.toStatus });
+
+      // Invalidate Dashboard cache so the next dashboard visit shows fresh KPIs.
+      // Does not trigger an immediate re-fetch — the user may be on Bookings page.
+      Dashboard._cache     = null;
+      Dashboard._cacheTime = 0;
+
+      if (typeof onSuccess === 'function') onSuccess(result);
+
+    } catch (err) {
+      Toast.error('Action failed: ' + err.message);
+    }
+  },
+
+  /**
+   * Return action keys valid for a booking's current status.
+   * Used by Table and Drawer to decide which buttons to render.
+   * @param {object} booking
+   * @param {function} canPerform
+   */
+  getAvailable(booking, canPerform) {
+    canPerform = canPerform || (() => true);
+    return Object.entries(ActionDispatcher.ACTIONS)
+      .filter(([key, def]) =>
+        BookingStateMachine.canTransition(booking.status, def.toStatus) &&
+        canPerform(key)
+      )
+      .map(([key]) => key);
+  },
+};
+
+// ================================================================
+// 14. Table — reusable table renderer
+//
+// Responsibility: render a sortable, paginated, searchable table.
+//   Has zero knowledge of bookings — it renders any column config.
+//   Supports sticky header, responsive horizontal scroll, empty/loading/error states.
+// Why it exists: prevents duplicated table code across Bookings/Reports/Customers.
+// Interactions: Bookings module calls Table.render(). All sort/page state
+//   is kept in the Bookings module (Table is stateless — it only renders).
+// ================================================================
+const Table = {
+  /**
+   * Render a table into containerEl.
+   * @param {Element} containerEl
+   * @param {object}  opts
+   *   columns:    [{ key, label, render, sortable, width, className }]
+   *   rows:       array of objects (pre-filtered, pre-paginated)
+   *   total:      total records before pagination
+   *   page:       current page (1-indexed)
+   *   pages:      total pages
+   *   sortField:  currently sorted field
+   *   sortDir:    'asc' | 'desc'
+   *   loading:    boolean
+   *   error:      string | null
+   *   onSort:     function(field)
+   *   onPage:     function(page)
+   *   onRowClick: function(row)
+   *   onRetry:    function()
+   *   pageSize:   rows per page
+   */
+  render(containerEl, opts) {
+    if (!containerEl) return;
+    if (opts.loading) { containerEl.innerHTML = Table._loadingHtml(opts.columns.length); return; }
+    if (opts.error)   { containerEl.innerHTML = Table._errorHtml(opts.error, opts.onRetry); return; }
+    if (!opts.rows || opts.rows.length === 0) {
+      containerEl.innerHTML = Table._emptyHtml(opts.columns.length);
+      return;
+    }
+
+    const thead = Table._renderHead(opts);
+    const tbody = Table._renderBody(opts);
+    const pager = Table._renderPager(opts);
+
+    containerEl.innerHTML = `
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table class="data-table" role="grid">
+            <thead>${thead}</thead>
+            <tbody>${tbody}</tbody>
+          </table>
+        </div>
+        ${pager}
+      </div>`;
+
+    // Bind sort click handlers
+    containerEl.querySelectorAll('th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => opts.onSort && opts.onSort(th.dataset.sort));
+      th.setAttribute('tabindex', '0');
+      th.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opts.onSort && opts.onSort(th.dataset.sort); }
+      });
+    });
+
+    // Bind row click handlers
+    containerEl.querySelectorAll('tbody tr[data-id]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const b = BookingRepository.getById(tr.dataset.id);
+        if (b && opts.onRowClick) opts.onRowClick(b);
+      });
+      tr.setAttribute('tabindex', '0');
+      tr.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          const b = BookingRepository.getById(tr.dataset.id);
+          if (b && opts.onRowClick) opts.onRowClick(b);
+        }
+      });
+    });
+
+    // Bind pagination
+    containerEl.querySelectorAll('[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => opts.onPage && opts.onPage(parseInt(btn.dataset.page)));
+    });
+  },
+
+  _renderHead(opts) {
+    return '<tr>' + opts.columns.map(col => {
+      if (col.sortable === false) {
+        return `<th class="no-sort" ${col.width ? `style="width:${col.width}"`:''} scope="col">${Util.esc(col.label)}</th>`;
+      }
+      const isSorted = col.key === opts.sortField;
+      const cls      = isSorted ? ('sorted-' + opts.sortDir) : '';
+      return `<th data-sort="${Util.esc(col.key)}" class="${cls}"
+                  ${col.width ? `style="width:${col.width}"`:''} scope="col"
+                  aria-sort="${isSorted ? opts.sortDir+'ending' : 'none'}">${Util.esc(col.label)}</th>`;
+    }).join('') + '</tr>';
+  },
+
+  _renderBody(opts) {
+    return opts.rows.map(row => {
+      const cells = opts.columns.map(col => {
+        const val = col.render ? col.render(row) : Util.esc(String(row[col.key] ?? ''));
+        return `<td class="${Util.esc(col.className||'')}">${val}</td>`;
+      }).join('');
+      return `<tr data-id="${Util.esc(row.id)}" tabindex="0" role="row">${cells}</tr>`;
+    }).join('');
+  },
+
+  _renderPager(opts) {
+    if (opts.pages <= 1) {
+      return `<div class="pagination"><div class="pagination-info">${opts.total} booking${opts.total !== 1 ? 's' : ''}</div></div>`;
+    }
+    const start = (opts.page - 1) * (opts.pageSize || CONFIG.PAGE_SIZE) + 1;
+    const end   = Math.min(opts.page * (opts.pageSize || CONFIG.PAGE_SIZE), opts.total);
+    const info  = `${start}–${end} of ${opts.total}`;
+
+    let btns = `<button class="btn-page" data-page="${opts.page - 1}" ${opts.page <= 1 ? 'disabled' : ''} aria-label="Previous page">‹</button>`;
+    // Show up to 5 page buttons around current page
+    const lo = Math.max(1, opts.page - 2), hi = Math.min(opts.pages, opts.page + 2);
+    if (lo > 1) btns += `<button class="btn-page" data-page="1">1</button>`;
+    if (lo > 2) btns += `<span style="padding:0 4px;color:var(--text-muted)">…</span>`;
+    for (let p = lo; p <= hi; p++) {
+      btns += `<button class="btn-page ${p === opts.page ? 'active' : ''}" data-page="${p}" aria-current="${p === opts.page ? 'page' : 'false'}">${p}</button>`;
+    }
+    if (hi < opts.pages - 1) btns += `<span style="padding:0 4px;color:var(--text-muted)">…</span>`;
+    if (hi < opts.pages) btns += `<button class="btn-page" data-page="${opts.pages}">${opts.pages}</button>`;
+    btns += `<button class="btn-page" data-page="${opts.page + 1}" ${opts.page >= opts.pages ? 'disabled' : ''} aria-label="Next page">›</button>`;
+
+    return `<div class="pagination">
+      <div class="pagination-info">${info}</div>
+      <div class="pagination-btns">${btns}</div>
+    </div>`;
+  },
+
+  _loadingHtml(colCount) {
+    const skelRows = Array(5).fill(
+      '<tr>' + Array(colCount).fill(`<td>${Util.skeleton(1,14)}</td>`).join('') + '</tr>'
+    ).join('');
+    return `<div class="table-wrap"><div class="table-scroll"><table class="data-table"><tbody>${skelRows}</tbody></table></div></div>`;
+  },
+
+  _errorHtml(msg, onRetry) {
+    return `<div class="table-wrap" style="padding:32px;text-align:center;color:var(--rejected-color);">
+      <div style="font-size:20px;margin-bottom:8px;">⚠️</div>
+      <div style="font-weight:600;margin-bottom:12px;">${Util.esc(msg)}</div>
+      <button onclick="(${onRetry})()" style="padding:8px 18px;border:1px solid var(--rejected-border);border-radius:50px;background:var(--rejected-bg);color:var(--rejected-color);font-weight:700;cursor:pointer;">Retry</button>
+    </div>`;
+  },
+
+  _emptyHtml(colCount) {
+    return `<div class="table-wrap">
+      ${Util.empty('📋', 'No bookings found for the selected filters.')}
+    </div>`;
+  },
+};
+
+// ================================================================
+// 15. Drawer — reusable booking detail panel
+//
+// Responsibility: display full booking detail and action buttons.
+//   The SAME component is used by Dashboard, Bookings, Calendar, Reports.
+//   Never duplicated. Never knows which page opened it.
+// Why it exists: prevents copy-pasted booking detail HTML across modules.
+// Interactions: opened by ActionDispatcher.dispatch('view',...) or directly
+//   via Drawer.open(booking). Calls ActionDispatcher for all actions.
+// ================================================================
+const Drawer = {
+  _current: null,
+
+  open(booking) {
+    if (!booking) return;
+    Drawer._current = booking;
+    Drawer._render(booking);
+    document.getElementById('drawerOverlay').classList.add('open');
+    document.getElementById('drawer').setAttribute('aria-hidden', 'false');
+    // Trap focus
+    setTimeout(() => {
+      const close = document.querySelector('#drawer .btn-drawer-close');
+      if (close) close.focus();
+    }, 280);
+  },
+
+  close() {
+    document.getElementById('drawerOverlay').classList.remove('open');
+    document.getElementById('drawer').setAttribute('aria-hidden', 'true');
+    Drawer._current = null;
+  },
+
+  /** Re-render in place after a status update without closing */
+  refresh() {
+    if (!Drawer._current) return;
+    const updated = BookingRepository.getById(Drawer._current.id);
+    if (updated) Drawer._render(updated);
+  },
+
+  _render(b) {
+    const meta        = STATUS_META[b.status] || { cls:'pending', icon:'⏳', label: b.status };
+    const allowedKeys = ActionDispatcher.getAvailable(b);
+    const actionBtns  = allowedKeys.map(key => {
+      const def = ActionDispatcher.ACTIONS[key];
+      const isDanger = def.destructive;
+      return `<button class="btn-drawer-action${isDanger ? ' danger' : ''}"
+                onclick="ActionDispatcher.dispatch('${key}', Drawer._current, null, () => { Drawer.refresh(); Bookings.rerender(); })"
+                aria-label="${Util.esc(def.label)}">
+                ${def.icon} ${Util.esc(def.label)}
+              </button>`;
+    }).join('');
+
+    const screenshotHtml = b.screenshot
+      ? `<img src="${Util.esc(b.screenshot)}" class="drawer-screenshot" alt="Payment screenshot"
+             onclick="Drawer._zoomScreenshot('${Util.esc(b.screenshot)}')" />`
+      : `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;">No screenshot uploaded</div>`;
+
+    Util.setHtml('drawerBody', `
+      <div class="drawer-section">
+        <div class="drawer-section-title">Customer</div>
+        <div class="drawer-field"><span class="drawer-field-label">Name</span><span class="drawer-field-value">${Util.esc(b.customerName)}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Mobile</span><span class="drawer-field-value">${Util.esc(b.mobile)}</span></div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Booking</div>
+        <div class="drawer-field"><span class="drawer-field-label">Reference</span><span class="drawer-field-value" style="font-family:monospace;font-size:12px;">${Util.esc(b.id)}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Date</span><span class="drawer-field-value">${Util.esc(Util.fmtDateLong(b.bookingDate))}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Time</span><span class="drawer-field-value">${Util.esc(b.bookingTime)}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Duration</span><span class="drawer-field-value">${Util.esc(b.hours + ' hour' + (b.hours !== 1 ? 's' : ''))}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Court</span><span class="drawer-field-value">${Util.esc(b.courtLabel)}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Session</span><span class="drawer-field-value">${Util.esc(b.session)}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Rate</span><span class="drawer-field-value">${Util.esc(b.rate)}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Paddles</span><span class="drawer-field-value">${Util.esc(String(b.paddles))}</span></div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Payment</div>
+        <div class="drawer-field"><span class="drawer-field-label">Total</span><span class="drawer-field-value" style="font-size:15px;font-weight:800;">${Util.esc(Util.peso(b.amount))}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Method</span><span class="drawer-field-value">${Util.esc(b.paymentMethod)}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Payment</span><span class="drawer-field-value">${Util.esc(b.paymentStatus)}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Status</span><span class="drawer-field-value">${Util.badge(b.status)}</span></div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Payment Screenshot</div>
+        ${screenshotHtml}
+        ${b.screenshot ? `<div style="margin-top:8px;text-align:center;">
+          <a href="${Util.esc(b.screenshot)}" target="_blank" rel="noopener"
+             style="font-size:11px;color:var(--verified-color);font-weight:600;">Open in Drive ↗</a>
+        </div>` : ''}
+      </div>
+
+      ${b.notes ? `<div class="drawer-section">
+        <div class="drawer-section-title">Notes</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">${Util.esc(b.notes)}</div>
+      </div>` : ''}
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Timeline</div>
+        <div class="drawer-field"><span class="drawer-field-label">Created</span><span class="drawer-field-value">${Util.esc(Util.fmtRelative(b.createdAt))}</span></div>
+        <div class="drawer-field"><span class="drawer-field-label">Updated</span><span class="drawer-field-value">${Util.esc(b.updatedAt ? Util.fmtRelative(b.updatedAt) : '—')}</span></div>
+      </div>
+    `);
+
+    document.getElementById('drawerTitle').textContent = b.id;
+    Util.setHtml('drawerActions', actionBtns ||
+      `<div style="font-size:12px;color:var(--text-muted);padding:4px 0;">No actions available — booking is ${Util.esc(b.status.toLowerCase())}.</div>`
+    );
+  },
+
+  _zoomScreenshot(url) {
+    const overlay = document.getElementById('screenshotZoom');
+    const img     = overlay ? overlay.querySelector('img') : null;
+    if (img)  img.src = url;
+    if (overlay) overlay.classList.add('open');
+  },
+};
+
+// ================================================================
+// 16–18. Toast / Modal / Confirm (unchanged from Module 1)
+// ================================================================
+const Toast = {
+  _t: null,
+  show(msg, type) {
+    const el = Util.el('toast');
+    el.textContent = msg;
+    el.className   = 'show toast-' + (type || 'info');
+    clearTimeout(Toast._t);
+    Toast._t = setTimeout(() => { el.className = ''; }, 3500);
+  },
+  ok(msg)    { Toast.show(msg, 'ok'); },
+  error(msg) { Toast.show(msg, 'error'); },
+  info(msg)  { Toast.show(msg, 'info'); },
+};
+
+const Modal = {
+  open(title, bodyHtml) {
+    document.getElementById('modalTitle').textContent = title;
+    Util.setHtml('modalBody', bodyHtml);
+    document.getElementById('modalOverlay').classList.add('open');
+  },
+  close() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    Util.setHtml('modalBody', '');
+  },
+};
+
+const Confirm = {
+  _cb: null,
+  show(msg, icon, okLabel, onConfirm) {
+    document.getElementById('confirmMsg').textContent   = msg;
+    document.getElementById('confirmIcon').textContent  = icon || '⚠️';
+    document.getElementById('confirmOkBtn').textContent = okLabel || 'Confirm';
+    Confirm._cb = onConfirm;
+    document.getElementById('confirmOverlay').classList.add('open');
+    document.getElementById('confirmOkBtn').focus();
+  },
+  ok() {
+    document.getElementById('confirmOverlay').classList.remove('open');
+    const cb = Confirm._cb; Confirm._cb = null; if (cb) cb();
+  },
+  cancel() {
+    document.getElementById('confirmOverlay').classList.remove('open');
+    Confirm._cb = null;
+  },
+};
+
+// ================================================================
+// 19. Auth — login, session, logout
+// ================================================================
+const Auth = {
+  SESSION_KEY: 'apc_admin_v1',
+  login() {
+    const pwd = document.getElementById('loginPwd').value;
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('loginErr');
+    if (!pwd) return;
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    err.classList.remove('visible');
+    setTimeout(() => {
+      if (pwd === CONFIG.ADMIN_PASSWORD) {
+        sessionStorage.setItem(Auth.SESSION_KEY, '1');
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('appShell').classList.add('visible');
+        Clock.start();
+        Nav.go('dashboard', document.querySelector('[data-page="dashboard"]'));
+      } else {
+        err.classList.add('visible');
+        document.getElementById('loginPwd').value = '';
+        document.getElementById('loginPwd').focus();
+        btn.disabled = false; btn.textContent = 'Sign In';
+      }
+    }, 400);
+  },
+  logout() {
+    sessionStorage.removeItem(Auth.SESSION_KEY);
+    if (Dashboard._pollId) clearInterval(Dashboard._pollId);
+    location.reload();
+  },
+  restore() {
+    if (sessionStorage.getItem(Auth.SESSION_KEY) === '1') {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appShell').classList.add('visible');
+      Clock.start();
+      Nav.go('dashboard', document.querySelector('[data-page="dashboard"]'));
+    }
+  },
+};
+
+// ================================================================
+// 20. Clock — topbar time display
+// ================================================================
+const Clock = {
+  start() {
+    Clock._tick();
+    setInterval(Clock._tick, 15000);
+    Dashboard._pollId = setInterval(Dashboard._silentRefresh, CONFIG.POLL_INTERVAL_MS);
+  },
+  _tick() {
+    const now = new Date();
+    document.getElementById('topbarClock').textContent =
+      now.toLocaleDateString('en-PH', { weekday:'short', month:'short', day:'numeric' }) +
+      ' · ' + now.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+  },
+};
+
+// ================================================================
+// 21. Nav — page routing
+// ================================================================
+const PAGE_TITLES = {
+  dashboard: 'Dashboard',        bookings:  'Bookings',
+  calendar:  'Calendar',         customers: 'Customers',
+  reports:   'Reports',          settings:  'Settings',
+  'manual-booking': 'Manual Booking',
+};
+
+const Nav = {
+  current: 'dashboard',
+  go(pageId, btn) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    else {
+      const found = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+      if (found) found.classList.add('active');
+    }
+    document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+    const page = document.getElementById('page-' + pageId);
+    if (page) page.classList.add('active');
+    Nav.current = pageId;
+    document.getElementById('topbarTitle').textContent = PAGE_TITLES[pageId] || pageId;
+    Nav.closeSidebar();
+    if (pageId === 'dashboard')       Dashboard.load();
+    if (pageId === 'bookings')         Bookings.load();
+    if (pageId === 'manual-booking')   ManualBooking.init();
+  },
+  refresh() {
+    if (Nav.current === 'dashboard') Dashboard._hardRefresh();
+    else if (Nav.current === 'bookings') Bookings.reload();
+    else Nav.go(Nav.current, null);
+  },
+  openSidebar()  {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarOverlay').classList.add('open');
+  },
+  closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  },
+};
+
+// ================================================================
+// 22. Dashboard — Module 1 (unchanged, abbreviated for clarity)
+// ================================================================
+const Dashboard = {
+  _cache:     null,
+  _cacheTime: 0,
+  _pollId:    null,
+
+  async load() {
+    const now = Date.now();
+    if (Dashboard._cache && (now - Dashboard._cacheTime) < CONFIG.CACHE_TTL_MS) {
+      Dashboard._render(Dashboard._cache); return;
+    }
+    Dashboard._showSkeletons();
+    await Dashboard._fetch(true);
+  },
+
+  async _silentRefresh() {
+    if (!sessionStorage.getItem(Auth.SESSION_KEY)) return;
+    if (Nav.current !== 'dashboard') return;
+    await Dashboard._fetch(false);
+  },
+
+  async _hardRefresh() {
+    Dashboard._cache = null;
+    const pageWrap = document.getElementById('pageWrap');
+    const scrollY  = pageWrap ? pageWrap.scrollTop : 0;
+    Dashboard._showSkeletons();
+    await Dashboard._fetch(true);
+    if (pageWrap) requestAnimationFrame(() => { pageWrap.scrollTop = scrollY; });
+  },
+
+  async _fetch(showBtnSpinner) {
+    const btn = document.getElementById('refreshBtn');
+    if (showBtnSpinner && btn) btn.classList.add('loading');
+    try {
+      const data = await API.get('getDashboard', { courtId: CONFIG.COURT_ID });
+      if (!data.success) throw new Error(data.error || 'Dashboard error');
+      Dashboard._cache     = data;
+      Dashboard._cacheTime = Date.now();
+      Dashboard._clearError();
+      Dashboard._render(data);
+
+      // Populate BookingRepository in the background so Drawer.open() works
+      // from Dashboard panel rows without blocking the dashboard render.
+      // The repository fetch is silent — no spinner, no error banner on failure.
+      // Drawer has a null-guard so clicking before repo is ready silently does nothing.
+      if (!BookingRepository._fetchedAt) {
+        BookingRepository.fetch(true).catch(() => {});
+      }
+    } catch (err) {
+      Dashboard._showError(err.message, !!Dashboard._cache);
+    } finally {
+      if (btn) btn.classList.remove('loading');
+    }
+  },
+
+  _showSkeletons() {
+    const sk5 = Array(5).fill(`<div class="skeleton-card">${Util.skeleton(1,24)}${Util.skeleton(1,12)}${Util.skeleton(1,10)}</div>`).join('');
+    Util.setHtml('courtStatusWrap',     `<div class="skeleton-card" style="margin-bottom:16px;">${Util.skeleton(1,20)}</div>`);
+    Util.setHtml('kpiToday',            sk5);
+    Util.setHtml('kpiRevenue',          sk5);
+    Util.setHtml('panelUpcoming',       `<div class="panel"><div class="panel-header"><div class="panel-title">Upcoming</div></div><div class="panel-body" style="padding:16px;">${Util.skeleton(4,14)}</div></div>`);
+    Util.setHtml('panelPending',        `<div class="panel"><div class="panel-header"><div class="panel-title">Pending Verification</div></div><div class="panel-body" style="padding:16px;">${Util.skeleton(4,14)}</div></div>`);
+    Util.setHtml('panelRecentBookings', `<div class="panel"><div class="panel-header"><div class="panel-title">Recent Bookings</div></div><div class="panel-body" style="padding:16px;">${Util.skeleton(4,14)}</div></div>`);
+    Util.setHtml('panelRecentPayments', `<div class="panel"><div class="panel-header"><div class="panel-title">Recent Payments</div></div><div class="panel-body" style="padding:16px;">${Util.skeleton(4,14)}</div></div>`);
+  },
+
+  _showError(msg, keepOldData) {
+    const el = document.getElementById('errorBanner');
+    el.innerHTML = '⚠️ ' + Util.esc(msg) + ' &nbsp;—&nbsp; <button onclick="Dashboard._hardRefresh()" style="background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;font-size:inherit;padding:0;">Retry</button>';
+    el.classList.add('visible');
+    if (!keepOldData) {
+      ['kpiToday','kpiRevenue','panelUpcoming','panelPending','panelRecentBookings','panelRecentPayments'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.querySelector('.skeleton-block')) Util.setHtml(id, Util.empty('⚠️','Could not load data'));
+      });
+    }
+  },
+
+  _clearError() {
+    const el = document.getElementById('errorBanner');
+    if (el) el.classList.remove('visible');
+  },
+
+  _render(data) {
+    const kpi = data.kpi || {};
+
+    Dashboard._renderCourtStatus(data.courtStatus);
+    Dashboard._renderKPIGrid('kpiToday', [
+      { icon:'📋', label:"Today's Bookings",    value: kpi.todayCount     || 0,                  desc:'All bookings today',             accent:'#6366F1' },
+      { icon:'✅', label:'Confirmed',           value: kpi.confirmedCount || 0,                  desc:'Confirmed bookings',             accent:'var(--confirmed-color)' },
+      { icon:'⏳', label:'Pending Verification',value: kpi.pendingCount   || 0,                  desc:'Awaiting payment review',        accent:'var(--pending-color)' },
+      { icon:'✔️', label:'Payment Verified',    value: kpi.verifiedCount  || 0,                  desc:'Verified, awaiting confirmation',accent:'var(--verified-color)' },
+      { icon:'🏆', label:'Completed',           value: kpi.completedCount || 0,                  desc:'Sessions finished',              accent:'var(--completed-color)' },
+      { icon:'🚫', label:'Cancelled',           value: kpi.cancelledCount || 0,                  desc:'Cancelled total',                accent:'var(--cancelled-color)' },
+    ]);
+    Dashboard._renderKPIGrid('kpiRevenue', [
+      { icon:'💵', label:'Cash Received Today',    value: Util.peso(kpi.cashReceivedToday), desc:'Verified + Confirmed + Completed',accent:'#059669' },
+      { icon:'💰', label:'Confirmed Revenue Today',value: Util.peso(kpi.confirmedRevToday),desc:'Confirmed + Completed only',       accent:'var(--confirmed-color)' },
+      { icon:'📅', label:'Cash Received (7 Days)', value: Util.peso(kpi.cashReceivedWeek), desc:'Rolling 7-day cash in hand',      accent:'#0891B2' },
+      { icon:'📆', label:'Cash Received (30 Days)',value: Util.peso(kpi.cashReceivedMonth),desc:'Rolling 30-day cash in hand',     accent:'#7C3AED' },
+      { icon:'📈', label:'Confirmed Rev (30 Days)',value: Util.peso(kpi.confirmedRevMonth), desc:'Confirmed + Completed, 30 days',  accent:'var(--gold)' },
+    ]);
+
+    // ── Source count KPI cards (v1.1)
+    const scs   = data.sourceCounts || {};
+    const tdSrc = (data.kpi && data.kpi.todayBySource) ? data.kpi.todayBySource : {};
+    const srcGridEl = document.getElementById('kpiSources');
+    if (srcGridEl) {
+      srcGridEl.innerHTML = [
+        { icon:'💬', label:'Messenger Today',  value: tdSrc['Messenger'] ||0, accent:'#7C3AED' },
+        { icon:'🚶', label:'Walk-ins Today',   value: tdSrc['Walk-in']   ||0, accent:'var(--confirmed-color)' },
+        { icon:'🌐', label:'Website Today',    value: tdSrc['Website']   ||0, accent:'var(--verified-color)' },
+        { icon:'📞', label:'Phone Today',      value: tdSrc['Phone']     ||0, accent:'var(--pending-color)' },
+      ].map(c => '<div class="kpi-card" style="--kpi-accent:'+c.accent+'"><span class="kpi-icon">'+c.icon+'</span><div class="kpi-value">'+Util.esc(String(c.value))+'</div><div class="kpi-label">'+Util.esc(c.label)+'</div></div>').join('');
+    }
+
+    const badge = document.getElementById('navBadgePending');
+    const pc    = kpi.pendingCount || 0;
+    badge.textContent = pc;
+    badge.className   = 'nav-badge' + (pc === 0 ? ' zero' : '');
+
+    Dashboard._renderListPanel('panelUpcoming',       'Upcoming Bookings',   '📅', data.upcoming       || [], b => Dashboard._bookingRow(b, false));
+    Dashboard._renderListPanel('panelPending',        'Pending Verification','⏳', data.pendingList    || [], b => Dashboard._bookingRow(b, true));
+    Dashboard._renderListPanel('panelRecentBookings', 'Recent Bookings',     '🕐', data.recentBookings || [], b => Dashboard._bookingRow(b, false));
+    Dashboard._renderListPanel('panelRecentPayments', 'Recent Payments',     '🧾', data.recentPayments || [], b => Dashboard._paymentRow(b));
+
+    Chart.renderBar('chartRevenue', data.revenueSeries || []);
+    Chart.renderDonut('chartDonut', 'donutLegend', data.kpi || {});
+  },
+
+  _renderCourtStatus(status) {
+    const cls  = status === 'In Use' ? 'in-use' : status === 'Available' ? 'available' : 'closed';
+    const desc = status === 'In Use' ? 'Currently occupied — active session in progress'
+               : status === 'Available' ? 'Open and ready for bookings'
+               : 'Outside operating hours';
+    Util.setHtml('courtStatusWrap', `
+      <div class="court-status-card" style="margin-bottom:16px;">
+        <div class="court-status-dot ${Util.esc(cls)}"></div>
+        <div class="court-status-info">
+          <div class="cs-name">🏓 ${Util.esc(CONFIG.COURT_LABEL)} — <strong>${Util.esc(status)}</strong></div>
+          <div class="cs-status">${Util.esc(desc)}</div>
+          <div class="cs-time">Operating hours: ${CONFIG.COURT_OPEN_HOUR}:00 AM – ${CONFIG.COURT_CLOSE_HOUR - 12}:00 PM · ${Util.fmtDate(Util.today())}</div>
+        </div>
+      </div>`);
+  },
+
+  _renderKPIGrid(elId, cards) {
+    Util.setHtml(elId, cards.map(c => `
+      <div class="kpi-card" style="--kpi-accent:${c.accent}">
+        <span class="kpi-icon">${c.icon}</span>
+        <div class="kpi-value">${Util.esc(String(c.value))}</div>
+        <div class="kpi-label">${Util.esc(c.label)}</div>
+        <div class="kpi-desc">${Util.esc(c.desc)}</div>
+      </div>`).join(''));
+  },
+
+  _renderListPanel(elId, title, icon, items, rowFn) {
+    const count = items.length > 0 ? `<span class="panel-count">${items.length}</span>` : '';
+    const body  = items.length > 0 ? items.map(rowFn).join('') : Util.empty(icon, 'Nothing here yet');
+    Util.setHtml(elId, `
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">${Util.esc(icon)} ${Util.esc(title)} ${count}</div></div>
+        <div class="panel-body">${body}</div>
+      </div>`);
+  },
+
+  _bookingRow(b, showStatus) {
+    const statusHtml = showStatus ? Util.badge(b.bookingStatus || b.status) : '';
+    return `<div class="booking-row" onclick="Drawer.open(BookingRepository.getById('${Util.esc(b.bookingId || b.id)}'))" role="button" tabindex="0" style="cursor:pointer;">
+      <div class="br-avatar">${Util.esc(Util.initial(b.name || b.customerName))}</div>
+      <div class="br-info">
+        <div class="br-name">${Util.esc(b.name || b.customerName)}</div>
+        <div class="br-meta">${Util.esc(b.phone || b.mobile)} · ${Util.esc(b.session || '')} ${statusHtml}</div>
+      </div>
+      <div class="br-right">
+        <div class="br-time">${Util.esc(b.timeLabel || b.bookingTime || '')} · ${Util.fmtDate(b.date || b.bookingDate)}</div>
+        <div class="br-id">${Util.esc(b.bookingId || b.id)}</div>
+      </div>
+    </div>`;
+  },
+
+  _paymentRow(p) {
+    const link = p.driveUrl
+      ? `<a href="${Util.esc(p.driveUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--verified-color);font-weight:600;">View ↗</a>`
+      : '<span style="font-size:11px;color:var(--text-muted);">No screenshot</span>';
+    return `<div class="booking-row">
+      <div class="br-avatar">🧾</div>
+      <div class="br-info">
+        <div class="br-name">${Util.esc(p.name || p.customerName)}</div>
+        <div class="br-meta">${Util.esc(p.bookingId || p.id)} ${Util.badge(p.bookingStatus || p.status)}</div>
+      </div>
+      <div class="br-right">${link}<div class="br-id" style="margin-top:3px;">${Util.fmtDate(p.date || p.bookingDate)}</div></div>
+    </div>`;
+  },
+};
+
+// ================================================================
+// 23. Bookings — Module 2
+//
+// Responsibility: booking management page — search, filter, sort, paginate,
+//   open drawer. Contains zero business logic. Uses only:
+//   BookingRepository, FilterSpec, Table, Drawer, ActionDispatcher.
+// Why it exists: the operational center of the admin system.
+// Interactions: reads from BookingRepository (never from API directly).
+//   Table renders rows. Drawer shows detail. ActionDispatcher handles actions.
+// ================================================================
+const Bookings = {
+  // ── Page state — all UI state is here, not scattered in closures
+  _loaded:      false,
+  _loading:     false,
+  _error:       null,
+  _searchQuery: '',
+  _filterStatus:'',
+  _filterDate:  '',
+  _sortField:   'id',
+  _sortDir:     'desc',
+  _page:        1,
+
+  // ── Table column definitions
+  // render(row) returns an HTML string. Never manipulates DOM directly.
+  COLUMNS: [
+    { key:'id',           label:'Booking ID',   width:'160px',
+      render: b => `<span class="cell-id">${Util.esc(b.id)}</span>` },
+    { key:'customerName', label:'Customer',
+      render: b => `<div class="cell-name">${Util.esc(b.customerName)}</div>
+                    <div style="font-size:11px;color:var(--text-muted);">${Util.esc(b.mobile)}</div>` },
+    { key:'bookingDate',  label:'Date',
+      render: b => `<div>${Util.esc(Util.fmtDate(b.bookingDate))}</div>
+                    <div style="font-size:11px;color:var(--text-muted);">${Util.esc(b.bookingTime)}</div>` },
+    { key:'hours',        label:'Hrs', width:'60px',
+      render: b => Util.esc(String(b.hours)) },
+    { key:'bookingSource', label:'Source',   width:'90px', sortable:true,
+      render: b => {
+        const src = b.bookingSource || 'Website';
+        const cls = { Website:'website', Messenger:'messenger', 'Walk-in':'walkin', Phone:'phone', Admin:'admin', Facebook:'walkin' }[src] || 'website';
+        return `<span class="source-badge ${Util.esc(cls)}">${Util.esc(src)}</span>`;
+      }},
+    { key:'session',      label:'Session',
+      render: b => Util.esc(b.session) },
+    { key:'paddles',      label:'Paddles', width:'70px',
+      render: b => Util.esc(String(b.paddles)) },
+    { key:'paymentMethod',label:'Payment',  width:'90px',
+      render: b => Util.esc(b.paymentMethod) },
+    { key:'amount',       label:'Total',    width:'90px',
+      render: b => `<span class="cell-amount">${Util.esc(Util.peso(b.amount))}</span>` },
+    { key:'status',       label:'Status',   width:'160px',
+      render: b => Util.badge(b.status) },
+    { key:'screenshot',   label:'Screenshot', width:'100px', sortable: false,
+      render: b => b.screenshot
+        ? `<span class="cell-screenshot"><a href="${Util.esc(b.screenshot)}" target="_blank" rel="noopener">View ↗</a></span>`
+        : '<span style="color:var(--text-muted);font-size:11px;">—</span>' },
+    { key:'_actions',     label:'', width:'90px', sortable: false,
+      render: b => {
+        const keys = ActionDispatcher.getAvailable(b);
+        if (!keys.length) return '<span style="font-size:11px;color:var(--text-muted);">—</span>';
+        const first = keys[0];
+        const def   = ActionDispatcher.ACTIONS[first];
+        return `<button class="btn-action action-${first}"
+                   onclick="event.stopPropagation();ActionDispatcher.dispatch('${first}',BookingRepository.getById('${Util.esc(b.id)}'),null,()=>{Bookings.rerender();})"
+                   aria-label="${Util.esc(def.label)} ${Util.esc(b.id)}">${def.icon} ${Util.esc(def.label)}</button>`;
+      }},
+  ],
+
+  /** Called when navigating to the Bookings page */
+  async load() {
+    if (Bookings._loaded) { Bookings.rerender(); return; }
+    Bookings._loading = true;
+    Bookings._renderTable();
+
+    try {
+      // BookingRepository is the only thing that calls the API
+      const hasNew = await BookingRepository.fetch();
+      Bookings._loaded  = true;
+      Bookings._loading = false;
+      Bookings._error   = null;
+      Bookings.rerender();
+    } catch (err) {
+      Bookings._loading = false;
+      Bookings._error   = err.message;
+      Bookings._renderTable();
+    }
+  },
+
+  /** Force a full reload from GAS */
+  async reload() {
+    Bookings._loaded  = false;
+    Bookings._page    = 1;
+    await BookingRepository.refresh();
+    Bookings._loaded = true;
+    Bookings.rerender();
+  },
+
+  /** Re-render current view from cached repository — O(n) client-side only */
+  rerender() {
+    Bookings._renderTable();
+  },
+
+  _getFiltered() {
+    const spec = FilterSpec.create()
+      .byStatus(Bookings._filterStatus)
+      .byDate(Bookings._filterDate)
+      .bySearch(Bookings._searchQuery)
+      .build();
+    const filtered = BookingRepository.filter(spec);
+    return BookingRepository.sort(filtered, Bookings._sortField, Bookings._sortDir);
+  },
+
+  _renderTable() {
+    const tableEl = document.getElementById('bookingsTableWrap');
+    if (!tableEl) return;
+
+    if (Bookings._loading) {
+      Table.render(tableEl, { columns: Bookings.COLUMNS, rows: [], loading: true });
+      return;
+    }
+
+    if (Bookings._error) {
+      Table.render(tableEl, {
+        columns: Bookings.COLUMNS, rows: [], error: Bookings._error,
+        onRetry: () => Bookings.reload(),
+      });
+      return;
+    }
+
+    const sorted   = Bookings._getFiltered();
+    const paginated = BookingRepository.paginate(sorted, Bookings._page, CONFIG.PAGE_SIZE);
+
+    // Update result count in toolbar
+    Util.setHtml('bookingsCount', `${sorted.length} booking${sorted.length !== 1 ? 's' : ''}`);
+
+    Table.render(tableEl, {
+      columns:   Bookings.COLUMNS,
+      rows:      paginated.items,
+      total:     paginated.total,
+      page:      paginated.page,
+      pages:     paginated.pages,
+      pageSize:  CONFIG.PAGE_SIZE,
+      sortField: Bookings._sortField,
+      sortDir:   Bookings._sortDir,
+      loading:   false,
+      error:     null,
+      onSort:    field => {
+        if (Bookings._sortField === field) {
+          Bookings._sortDir = Bookings._sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          Bookings._sortField = field;
+          Bookings._sortDir   = 'desc';
+        }
+        Bookings._page = 1;
+        Bookings.rerender();
+      },
+      onPage:    page => { Bookings._page = page; Bookings.rerender(); },
+      onRowClick: booking => Drawer.open(booking),
+    });
+  },
+
+  // ── Toolbar event handlers (called from HTML via inline handlers)
+  onSearch(query) {
+    Bookings._searchQuery = query;
+    Bookings._page = 1;
+    Bookings.rerender();
+  },
+
+  onFilterStatus(val) {
+    Bookings._filterStatus = val;
+    Bookings._page = 1;
+    Bookings.rerender();
+  },
+
+  onFilterDate(val) {
+    Bookings._filterDate = val;
+    Bookings._page = 1;
+    Bookings.rerender();
+  },
+
+  clearFilters() {
+    Bookings._searchQuery  = '';
+    Bookings._filterStatus = '';
+    Bookings._filterDate   = '';
+    Bookings._page         = 1;
+    // Reset toolbar inputs
+    const s = document.getElementById('booksSearch');   if (s) s.value = '';
+    const st = document.getElementById('booksStatus'); if (st) st.value = '';
+    const d = document.getElementById('booksDate');    if (d)  d.value = '';
+    Bookings.rerender();
+  },
+};
+
+// ================================================================
+// 24. Chart — canvas chart renderers (unchanged from Module 1)
+// ================================================================
+const Chart = {
+  renderBar(canvasId, series) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const W   = canvas.parentElement.clientWidth - 32;
+    const H   = 140;
+    canvas.width  = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.scale(dpr, dpr);
+    if (!series || !series.length) {
+      ctx.fillStyle='#999'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('No data yet', W/2, H/2); return;
+    }
+    const values  = series.map(s => s.cashReceived || 0);
+    const maxVal  = Math.max(...values, 1);
+    const barW    = Math.floor((W - 40) / series.length) - 3;
+    const barArea = H - 36;
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle='#E2E4E8'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(32,8); ctx.lineTo(W,8); ctx.stroke();
+    ctx.setLineDash([]);
+    series.forEach((s, i) => {
+      const x  = 36 + i * (barW + 3);
+      const v  = s.cashReceived || 0;
+      const bH = Math.max(v / maxVal * barArea, v > 0 ? 3 : 0);
+      const y  = H - 20 - bH;
+      const isToday = s.date === Util.today();
+      ctx.fillStyle = isToday ? '#C9971A' : '#E8D58A';
+      ctx.beginPath(); ctx.roundRect(x, y, barW, bH, [3,3,0,0]); ctx.fill();
+      if (i % 3 === 0 || isToday) {
+        const p = s.date.split('-');
+        const lbl = (p[1]||'') + '/' + (p[2]||'');
+        ctx.fillStyle = isToday ? '#C9971A' : '#9399A8';
+        ctx.font = isToday ? 'bold 9px sans-serif' : '9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(lbl, x + barW/2, H-4);
+      }
+    });
+    ctx.fillStyle='#9399A8'; ctx.font='9px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(Util.peso(maxVal), 30, 12);
+  },
+
+  renderDonut(canvasId, legendId, kpi) {
+    const canvas = document.getElementById(canvasId);
+    const legend = document.getElementById(legendId);
+    if (!canvas || !legend) return;
+    const ORDER = [STATUS.PENDING, STATUS.VERIFIED, STATUS.CONFIRMED, STATUS.COMPLETED, STATUS.CANCELLED, STATUS.REJECTED, STATUS.NO_SHOW];
+    const COUNTS = {
+      [STATUS.PENDING]:   kpi.pendingCount   || 0,
+      [STATUS.VERIFIED]:  kpi.verifiedCount  || 0,
+      [STATUS.CONFIRMED]: kpi.confirmedCount || 0,
+      [STATUS.COMPLETED]: kpi.completedCount || 0,
+      [STATUS.CANCELLED]: kpi.cancelledCount || 0,
+      [STATUS.REJECTED]:  kpi.rejectedCount  || 0,
+      [STATUS.NO_SHOW]:   kpi.noShowCount    || 0,
+    };
+    const total = Object.values(COUNTS).reduce((a,b) => a+b, 0);
+    if (!total) { canvas.style.display='none'; legend.innerHTML='<span style="color:var(--text-muted);font-size:12px;">No bookings yet</span>'; return; }
+    canvas.style.display='';
+    const dpr=window.devicePixelRatio||1, SIZE=140;
+    canvas.width=SIZE*dpr; canvas.height=SIZE*dpr;
+    canvas.style.width=SIZE+'px'; canvas.style.height=SIZE+'px';
+    const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+    const cx=SIZE/2, cy=SIZE/2, r=56, ir=36;
+    let angle=-Math.PI/2;
+    ORDER.forEach(s => {
+      const c=COUNTS[s]; if(!c) return;
+      const sweep=(c/total)*2*Math.PI;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,angle+sweep); ctx.closePath();
+      ctx.fillStyle=CHART_COLORS[s]||'#999'; ctx.fill(); angle+=sweep;
+    });
+    ctx.beginPath(); ctx.arc(cx,cy,ir,0,2*Math.PI); ctx.fillStyle='#FFF'; ctx.fill();
+    ctx.fillStyle='#1A1D23'; ctx.font='bold 18px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(total,cx,cy-6); ctx.font='9px sans-serif'; ctx.fillStyle='#9399A8'; ctx.fillText('total',cx,cy+10);
+    legend.innerHTML=ORDER.map(s => {
+      const c=COUNTS[s]; if(!c) return '';
+      const pct=Math.round(c/total*100);
+      return `<div style="display:flex;align-items:center;gap:6px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[s]};display:inline-block;flex-shrink:0;"></span>
+        <span style="color:var(--text-secondary)">${Util.esc(STATUS_META[s]?.label||s)}</span>
+        <strong style="margin-left:auto;color:var(--text-primary)">${c}</strong>
+        <span style="color:var(--text-muted)">${pct}%</span>
+      </div>`;
+    }).join('');
+  },
+};
+
+// ================================================================
+// 24b. Pricing — pricing engine (mirrors customer booking page logic)
+//
+// Responsibility: calculate booking amounts server-side in the admin.
+//   Logic is IDENTICAL to the customer page computePrice() function.
+//   Maintained here separately because the two HTML files are deployed
+//   independently. Any pricing rule change must be applied to both.
+// Interactions: ManualBooking reads from Pricing.compute().
+// ================================================================
+const Pricing = {
+  COURT_OPEN:  9,
+  COURT_CLOSE: 22,
+
+  isWeekend(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.getDay() === 0 || d.getDay() === 6;
+  },
+
+  isOffPeak(hour) { return hour >= 9 && hour < 17; },
+  isPeak(hour)    { return hour >= 17 && hour <= 21; },
+
+  getHourlyRate(dateStr, hour) {
+    if (Pricing.isWeekend(dateStr)) return { rate: 200, label: 'Weekend Rate' };
+    if (Pricing.isPeak(hour))       return { rate: 200, label: 'Peak Rate' };
+    if (Pricing.isOffPeak(hour))    return { rate: 150, label: 'Off-Peak Rate' };
+    return { rate: 150, label: 'Regular Rate' };
+  },
+
+  /**
+   * Compute price for a booking.
+   * @param {string} session   — 'regular'|'student'|'block3'|'corporate'|'membership'
+   * @param {string} dateStr   — 'YYYY-MM-DD'
+   * @param {number} startHour — integer (9–21)
+   * @param {number} hours     — 1–4
+   * @returns {{ total, hours, startHour, endHour, label, rateLabel, breakdown }}
+   */
+  compute(session, dateStr, startHour, hours) {
+    if (!dateStr || !startHour || !hours) return null;
+    const hoursArray = Array.from({ length: hours }, (_, i) => startHour + i);
+    const wknd       = Pricing.isWeekend(dateStr);
+
+    if (session === 'block3') {
+      const price = wknd ? 550 : 400;
+      return {
+        total: price, hours: 3, startHour, endHour: startHour + 3,
+        label: wknd ? '3-Hr Block (Peak/Wknd)' : '3-Hr Block Regular',
+        rateLabel: wknd ? '3-Hr Block (Peak/Wknd)' : '3-Hr Block Regular',
+        breakdown: hoursArray.map(h => ({ hour: h, rate: Math.round(price / 3) })),
+      };
+    }
+
+    if (session === 'corporate') {
+      return {
+        total: 1200, hours: 4, startHour, endHour: startHour + 4,
+        label: 'Corporate 4HR (free paddles)', rateLabel: 'Corporate 4HR',
+        breakdown: hoursArray.map(h => ({ hour: h, rate: 300 })),
+      };
+    }
+
+    if (session === 'membership') {
+      return {
+        total: 0, hours, startHour, endHour: startHour + hours,
+        label: 'Founding Membership · ' + hours + ' credit hr' + (hours > 1 ? 's' : '') + ' deducted',
+        rateLabel: 'Membership',
+        breakdown: hoursArray.map(h => ({ hour: h, rate: 0 })),
+      };
+    }
+
+    // regular / student / walkin
+    const breakdown = hoursArray.map(h => {
+      const base = Pricing.getHourlyRate(dateStr, h);
+      if (session === 'student') return { hour: h, rate: base.rate - 50, baseLabel: base.label };
+      return { hour: h, rate: base.rate, baseLabel: base.label };
+    });
+    const total       = breakdown.reduce((s, b) => s + b.rate, 0);
+    const uniqueRates = [...new Set(breakdown.map(b => b.rate))];
+    let label;
+    if (session === 'student') {
+      label = uniqueRates.length === 1
+        ? 'Student · ₱' + uniqueRates[0] + '/hr × ' + hours + ' hr' + (hours > 1 ? 's' : '') + ' (₱50 off)'
+        : 'Student · ' + breakdown.map(b => '₱' + b.rate).join(' + ');
+    } else {
+      label = uniqueRates.length === 1
+        ? breakdown[0].baseLabel + ' · ₱' + uniqueRates[0] + '/hr × ' + hours + ' hr' + (hours > 1 ? 's' : '')
+        : 'Mixed rates: ' + breakdown.map(b => '₱' + b.rate).join(' + ');
+    }
+    return { total, hours, startHour, endHour: startHour + hours, label, rateLabel: label, breakdown };
+  },
+
+  /** Build time slot <option> list for a date (skips past slots today) */
+  buildTimeOptions(dateStr) {
+    const opts   = [{ value: '', label: '— select time —' }];
+    const today  = Util.today();
+    const nowH   = new Date().getHours();
+    for (let h = Pricing.COURT_OPEN; h < Pricing.COURT_CLOSE; h++) {
+      if (dateStr === today && h <= nowH) continue; // skip past slots today
+      const ampm = h < 12 ? h + ':00 AM' : (h === 12 ? '12:00 PM' : (h - 12) + ':00 PM');
+      opts.push({ value: h, label: ampm });
+    }
+    return opts;
+  },
+};
+
+// ================================================================
+// 25. ManualBooking — Module 1 (v1.1)
+//
+// Responsibility: staff booking form — collects booking data,
+//   validates locally, submits via API.post manualBooking action,
+//   displays Messenger confirmation message.
+// Reuses: Pricing, BookingRepository, API, Toast, Util, Confirm.
+// Does NOT duplicate validation: slot conflict + max hours enforced server-side.
+// ================================================================
+const ManualBooking = {
+  // ── Form state ────────────────────────────────────────────────
+  _session:    'regular',
+  _duration:   1,
+  _source:     'Messenger',
+  _payment:    'GCash',
+  _payStatus:  'Paid',
+  _fileBase64: null,
+  _fileName:   null,
+  _lastResult: null,
+  _lookupTimer:null,
+
+  init() {
+    // Set default date to today
+    const dateEl = document.getElementById('mbDate');
+    if (dateEl && !dateEl.value) {
+      dateEl.value = Util.today();
+      ManualBooking.onDateChange();
+    }
+  },
+
+  setSession(val, btn) {
+    ManualBooking._session = val;
+    document.querySelectorAll('#page-manual-booking .seg-ctrl:first-of-type .seg-btn, [onclick*="setSession"] .seg-btn').forEach(b => b.classList.remove('active'));
+    // Find all session buttons
+    document.querySelectorAll('[onclick*="setSession"]').forEach(b => {
+      b.classList.toggle('active', b.dataset.val === val);
+    });
+    // Duration lock for block3/corporate
+    if (val === 'block3') ManualBooking.setDuration(3, null, true);
+    if (val === 'corporate') ManualBooking.setDuration(4, null, true);
+    ManualBooking.updatePricing();
+  },
+
+  setDuration(val, btn, fromSession) {
+    ManualBooking._duration = val;
+    document.querySelectorAll('[onclick*="setDuration"]').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.val) === val);
+    });
+    if (!fromSession) {
+      // Reset session if duration incompatible
+      if (ManualBooking._session === 'block3'    && val !== 3) ManualBooking._session = 'regular';
+      if (ManualBooking._session === 'corporate' && val !== 4) ManualBooking._session = 'regular';
+    }
+    ManualBooking.updatePricing();
+  },
+
+  setSource(val, btn) {
+    ManualBooking._source = val;
+    document.querySelectorAll('[onclick*="setSource"]').forEach(b => {
+      b.classList.toggle('active', b.dataset.val === val);
+    });
+  },
+
+  setPayment(val, btn) {
+    ManualBooking._payment = val;
+    document.querySelectorAll('[onclick*="setPayment"]').forEach(b => {
+      b.classList.toggle('active', b.dataset.val === val);
+    });
+  },
+
+  setPayStatus(val, btn) {
+    ManualBooking._payStatus = val;
+    document.querySelectorAll('[onclick*="setPayStatus"]').forEach(b => {
+      b.classList.remove('active','green','red');
+      if (b.dataset.val === val) {
+        b.classList.add('active');
+        b.classList.add(val === 'Paid' ? 'green' : 'red');
+      }
+    });
+  },
+
+  onDateChange() {
+    const dateEl = document.getElementById('mbDate');
+    const startEl = document.getElementById('mbStart');
+    if (!dateEl || !startEl) return;
+    const opts = Pricing.buildTimeOptions(dateEl.value);
+    startEl.innerHTML = opts.map(o => '<option value="' + Util.esc(String(o.value)) + '">' + Util.esc(o.label) + '</option>').join('');
+    ManualBooking.updatePricing();
+  },
+
+  onPricingChange() { ManualBooking.updatePricing(); },
+
+  updatePricing() {
+    const dateEl  = document.getElementById('mbDate');
+    const startEl = document.getElementById('mbStart');
+    if (!dateEl || !startEl) return;
+    const dateStr  = dateEl.value;
+    const startH   = parseInt(startEl.value);
+    if (!dateStr || !startH) {
+      Util.setHtml('mbAmount', '₱—');
+      Util.setHtml('mbRateLabel', 'Select date and time to calculate');
+      Util.setHtml('mbBreakdown', '');
+      return;
+    }
+    const p = Pricing.compute(ManualBooking._session, dateStr, startH, ManualBooking._duration);
+    if (!p) return;
+    Util.setHtml('mbAmount', Util.esc(Util.peso(p.total)));
+    Util.setHtml('mbRateLabel', Util.esc(p.label));
+    const bdHtml = p.breakdown.map(b =>
+      Util.esc(Pricing.getHourlyRate(dateStr, b.hour).label.split(' ')[0] + ' ' + (b.hour < 12 ? b.hour + ':00 AM' : (b.hour===12?'12:00 PM':(b.hour-12)+':00 PM')) + ' → ' + Util.peso(b.rate))
+    ).join('<br>');
+    Util.setHtml('mbBreakdown', bdHtml);
+  },
+
+  // ── Customer lookup ─────────────────────────────────────────
+  lookupCustomer(phone) {
+    clearTimeout(ManualBooking._lookupTimer);
+    const hintEl = document.getElementById('mbCustomerHint');
+    const histEl = document.getElementById('mbCustomerHistory');
+    if (!hintEl || !histEl) return;
+    if (!phone || phone.length < 7) {
+      hintEl.className = 'customer-hint'; histEl.className = 'customer-history'; return;
+    }
+    ManualBooking._lookupTimer = setTimeout(() => {
+      // Search BookingRepository in-memory (no API call)
+      const all  = BookingRepository.getAll();
+      const hits = all.filter(b => b.mobile === phone || b.mobile.endsWith(phone.slice(-8)));
+      if (hits.length === 0) {
+        hintEl.className = 'customer-hint new';
+        hintEl.textContent = '🆕 New Customer';
+        histEl.className = 'customer-history';
+        return;
+      }
+      // Auto-fill name from most recent booking
+      const latest    = hits.sort((a,b) => (b.createdAt||'') > (a.createdAt||'') ? 1 : -1)[0];
+      const nameEl    = document.getElementById('mbName');
+      if (nameEl && !nameEl.value) nameEl.value = latest.customerName;
+
+      hintEl.className   = 'customer-hint found';
+      hintEl.textContent = '✓ Returning customer — ' + latest.customerName;
+      histEl.className   = 'customer-history visible';
+
+      const totalHrs = hits.reduce((s,b) => s + (b.hours||1), 0);
+      const lastDate = latest.bookingDate ? Util.fmtDate(latest.bookingDate) : '—';
+      histEl.innerHTML = [
+        ['Total Bookings',  hits.length],
+        ['Total Hours',     totalHrs + ' hrs'],
+        ['Last Booking',    lastDate],
+        ['Usual Session',   latest.session || '—'],
+      ].map(([l,v]) =>
+        '<div class="ch-stat"><span class="ch-stat-label">' + Util.esc(l) + '</span><span class="ch-stat-value">' + Util.esc(String(v)) + '</span></div>'
+      ).join('');
+    }, 350);
+  },
+
+  // ── Keyboard navigation ─────────────────────────────────────
+  handleKey(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Move to next input
+      const inputs = Array.from(document.querySelectorAll('#page-manual-booking .mbook-input, #page-manual-booking .mbook-select'));
+      const idx    = inputs.indexOf(e.target);
+      if (idx >= 0 && idx < inputs.length - 1) inputs[idx + 1].focus();
+      else ManualBooking.save();
+    }
+    if (e.key === 'Escape') ManualBooking.reset();
+  },
+
+  // ── File upload ─────────────────────────────────────────────
+  handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+      Toast.error('Only JPG, PNG, WEBP accepted.'); return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      Toast.error('File too large — max 10MB.'); return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      ManualBooking._fileBase64 = dataUrl.split(',')[1];
+      ManualBooking._fileName   = file.name;
+      document.getElementById('mbPreviewImg').src  = dataUrl;
+      document.getElementById('mbFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+      document.getElementById('mbUploadPreview').classList.add('visible');
+      document.getElementById('mbUploadZone').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  },
+
+  removeUpload() {
+    ManualBooking._fileBase64 = null;
+    ManualBooking._fileName   = null;
+    document.getElementById('mbPreviewImg').src = '';
+    document.getElementById('mbUploadPreview').classList.remove('visible');
+    document.getElementById('mbUploadZone').style.display = 'block';
+    document.getElementById('mbPayFile').value = '';
+  },
+
+  // ── Validation ──────────────────────────────────────────────
+  _showError(msg) {
+    const wrap = document.getElementById('mbValidationWrap');
+    const el   = document.getElementById('mbValidation');
+    if (el) el.textContent = msg;
+    if (wrap) { wrap.style.display = 'block'; wrap.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
+  },
+
+  _clearError() {
+    const wrap = document.getElementById('mbValidationWrap');
+    if (wrap) wrap.style.display = 'none';
+  },
+
+  _validate() {
+    const name   = (document.getElementById('mbName')?.value  || '').trim();
+    const phone  = (document.getElementById('mbPhone')?.value || '').trim();
+    const date   = (document.getElementById('mbDate')?.value  || '').trim();
+    const startH = parseInt(document.getElementById('mbStart')?.value || '0');
+
+    if (!name)    { ManualBooking._showError('Customer name is required.'); return null; }
+    if (!phone)   { ManualBooking._showError('Mobile number is required.'); return null; }
+    if (!date)    { ManualBooking._showError('Booking date is required.'); return null; }
+    if (!startH)  { ManualBooking._showError('Start time is required.'); return null; }
+
+    if (date < Util.today()) { ManualBooking._showError('Booking date cannot be in the past.'); return null; }
+
+    const endH = startH + ManualBooking._duration;
+    if (endH > Pricing.COURT_CLOSE) {
+      ManualBooking._showError('Booking would end after court closing time (' + Pricing.COURT_CLOSE + ':00).'); return null;
+    }
+
+    const p = Pricing.compute(ManualBooking._session, date, startH, ManualBooking._duration);
+    if (!p) { ManualBooking._showError('Could not calculate pricing. Check date and time.'); return null; }
+
+    return {
+      name, phone, date, startHour: startH,
+      durationHours: ManualBooking._duration,
+      endHour: p.endHour,
+      totalHours: ManualBooking._duration,
+      sessionLabel: ManualBooking._duration + ' hr' + (ManualBooking._duration > 1 ? 's' : ''),
+      rateLabel:    p.rateLabel,
+      paddles:      0,
+      total:        p.total,
+      payment:      ManualBooking._payment,
+      paymentStatus: ManualBooking._payStatus,
+      notes:        (document.getElementById('mbNotes')?.value || '').trim(),
+      refNumber:    (document.getElementById('mbRef')?.value   || '').trim(),
+      bookingSource: ManualBooking._source,
+      imageBase64:  ManualBooking._fileBase64,
+      imageName:    ManualBooking._fileName,
+      _pricing:     p,
+    };
+  },
+
+  // ── Save ────────────────────────────────────────────────────
+  async save() {
+    ManualBooking._clearError();
+    const payload = ManualBooking._validate();
+    if (!payload) return;
+
+    const btn = document.getElementById('mbSaveBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving…'; }
+
+    try {
+      const result = await API.post(Object.assign({ action: 'manualBooking' }, payload));
+      if (!result.success) throw new Error(result.error || 'Save failed.');
+
+      ManualBooking._lastResult = { bookingId: result.bookingId, payload };
+
+      // Invalidate Dashboard cache so KPIs update
+      Dashboard._cache = null; Dashboard._cacheTime = 0;
+      // Refresh repository in background
+      BookingRepository.refresh().catch(() => {});
+
+      Toast.ok('✅ Booking ' + result.bookingId + ' saved!');
+      ManualBooking._showConfirmation(result.bookingId, payload);
+
+    } catch (err) {
+      ManualBooking._showError(err.message);
+      Toast.error(err.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '💾 Save Booking'; }
+    }
+  },
+
+  // ── Messenger confirmation ──────────────────────────────────
+  _showConfirmation(bookingId, payload) {
+    const p    = payload._pricing;
+    const dateObj = new Date(payload.date + 'T12:00:00');
+    const dateLbl = dateObj.toLocaleDateString('en-PH', { month:'long', day:'numeric', year:'numeric' });
+    const startLbl = payload.startHour < 12
+      ? payload.startHour + ':00 AM'
+      : (payload.startHour === 12 ? '12:00 PM' : (payload.startHour - 12) + ':00 PM');
+    const endH     = payload.endHour;
+    const endLbl   = endH < 12 ? endH + ':00 AM' : (endH === 12 ? '12:00 PM' : (endH - 12) + ':00 PM');
+
+    const msgLines = [
+      'Hi ' + payload.name.split(' ')[0] + '!',
+      '',
+      'Thank you for booking at Alrajj Private Pickleball Court.',
+      '',
+      'Booking ID:',
+      bookingId,
+      '',
+      'Date:',
+      dateLbl,
+      '',
+      'Time:',
+      startLbl + ' – ' + endLbl,
+      '',
+      'Duration:',
+      payload.durationHours + ' Hour' + (payload.durationHours > 1 ? 's' : ''),
+      '',
+      'Amount:',
+      Util.peso(p ? p.total : payload.total),
+      '',
+      'Payment:',
+      payload.payment,
+      '',
+      'Status:',
+      payload.paymentStatus === 'Paid' ? 'Confirmed ✅' : 'Pending Payment Verification ⏳',
+      '',
+      'Location:',
+      'Brgy. Paridi, Marawi City',
+      '',
+      'See you on the court!',
+      '',
+      'Book. Play. Elevate.',
+    ];
+
+    ManualBooking._msgText = msgLines.join('
+');
+    Util.setHtml('mbMsgPreview', Util.esc(ManualBooking._msgText).replace(/
+/g, '<br>'));
+
+    // Show confirmation, hide form
+    document.getElementById('mbookFormPanel').style.display = 'none';
+    document.getElementById('mbConfirmPanel').style.display = 'block';
+  },
+
+  copyMessage() {
+    const text = ManualBooking._msgText || '';
+    const copy = () => {
+      const btn = document.getElementById('mbCopyMsgBtn');
+      if (btn) { btn.textContent = '✅ Copied!'; btn.classList.add('copied'); }
+      setTimeout(() => {
+        if (btn) { btn.textContent = '📋 Copy Confirmation'; btn.classList.remove('copied'); }
+      }, 2500);
+    };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(copy).catch(() => { ManualBooking._fallbackCopy(text); copy(); });
+    else { ManualBooking._fallbackCopy(text); copy(); }
+  },
+
+  _fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+  },
+
+  // ── Reset ────────────────────────────────────────────────────
+  reset() {
+    ManualBooking._session    = 'regular';
+    ManualBooking._duration   = 1;
+    ManualBooking._source     = 'Messenger';
+    ManualBooking._payment    = 'GCash';
+    ManualBooking._payStatus  = 'Paid';
+    ManualBooking._fileBase64 = null;
+    ManualBooking._fileName   = null;
+    ManualBooking._lastResult = null;
+
+    // Reset form fields
+    ['mbName','mbPhone','mbNotes','mbRef'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    const dateEl = document.getElementById('mbDate');
+    if (dateEl) { dateEl.value = Util.today(); ManualBooking.onDateChange(); }
+
+    // Reset segmented controls
+    document.querySelectorAll('[onclick*="setSession"]').forEach(b => b.classList.toggle('active', b.dataset.val === 'regular'));
+    document.querySelectorAll('[onclick*="setDuration"]').forEach(b => b.classList.toggle('active', b.dataset.val === '1'));
+    document.querySelectorAll('[onclick*="setSource"]').forEach(b => b.classList.toggle('active', b.dataset.val === 'Messenger'));
+    document.querySelectorAll('[onclick*="setPayment"]').forEach(b => b.classList.toggle('active', b.dataset.val === 'GCash'));
+    document.querySelectorAll('[onclick*="setPayStatus"]').forEach(b => {
+      b.classList.toggle('active', b.dataset.val === 'Paid');
+      if (b.dataset.val === 'Paid') b.classList.add('green');
+    });
+
+    ManualBooking.removeUpload();
+    ManualBooking._clearError();
+
+    // Show form, hide confirmation
+    const formEl = document.getElementById('mbookFormPanel');
+    const confEl = document.getElementById('mbConfirmPanel');
+    if (formEl) formEl.style.display = '';
+    if (confEl) confEl.style.display = 'none';
+
+    // Reset hint
+    const hintEl = document.getElementById('mbCustomerHint');
+    const histEl = document.getElementById('mbCustomerHistory');
+    if (hintEl) hintEl.className = 'customer-hint';
+    if (histEl) histEl.className = 'customer-history';
+
+    // Focus phone
+    setTimeout(() => { const el = document.getElementById('mbPhone'); if (el) el.focus(); }, 100);
+  },
+};
+
+// ================================================================
+// 25. INIT — boot sequence
+// ================================================================
+Auth.restore();
+
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (Nav.current === 'dashboard' && Dashboard._cache) {
+      Chart.renderBar('chartRevenue', Dashboard._cache.revenueSeries || []);
+      Chart.renderDonut('chartDonut', 'donutLegend', Dashboard._cache.kpi || {});
+    }
+  }, 200);
+});
+
+</script>
+<!-- ── FLOATING ACTION BUTTON ────────────────────────── -->
+<a id="fabNewBooking" href="#" onclick="event.preventDefault();Nav.go('manual-booking',null);"
+   title="New Manual Booking" aria-label="Create new manual booking">+</a>
+
+</body>
+</html>
