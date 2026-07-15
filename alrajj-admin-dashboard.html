@@ -3735,10 +3735,8 @@ const ManualBooking = {
       'Book. Play. Elevate.',
     ];
 
-    ManualBooking._msgText = msgLines.join('
-');
-    Util.setHtml('mbMsgPreview', Util.esc(ManualBooking._msgText).replace(/
-/g, '<br>'));
+    ManualBooking._msgText = msgLines.join('\n');
+    Util.setHtml('mbMsgPreview', Util.esc(ManualBooking._msgText).replace(/\n/g, '<br>'));
 
     // Show confirmation, hide form
     document.getElementById('mbookFormPanel').style.display = 'none';
