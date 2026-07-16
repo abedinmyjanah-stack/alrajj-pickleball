@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0D0F12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Book a Court — Alrajj Pickleball</title>
+<style>
+/* ── RESET & BASE ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:      #C9971A;
+  --gold-lt:   #E8B820;
+  --gold-bg:   #FFFBEF;
+  --gold-bd:   #EBD48A;
+  --bg:        #F4F5F7;
+  --surface:   #FFFFFF;
+  --border:    #E4E6EB;
+  --text:      #1A1D23;
+  --text-sub:  #5A6072;
+  --text-muted:#9399A8;
+  --green:     #16A34A;
+  --green-bg:  #F0FDF4;
+  --green-bd:  #86EFAC;
+  --red:       #DC2626;
+  --red-bg:    #FEF2F2;
+  --radius:    16px;
+  --radius-sm: 10px;
+  --shadow:    0 2px 12px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.site-header {
+  background: #0D0F12;
+  padding: 16px 20px 14px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.site-logo {
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFF;
+  letter-spacing: 0.5px;
+}
+
+.site-logo span { color: var(--gold); }
+
+.site-tagline {
+  font-size: 11px;
+  color: #8892A0;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+
+/* ── MAIN CONTAINER ──────────────────────────────────────── */
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+/* ── CARD ────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-step {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #000;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-step.done {
+  background: var(--green);
+  color: #FFF;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.card-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.card-body { padding: 16px 18px; }
+
+/* ── DATE STRIP ──────────────────────────────────────────── */
+.date-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.date-strip::-webkit-scrollbar { display: none; }
+
+.date-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  padding: 10px 8px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  gap: 2px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.date-btn:active { transform: scale(0.96); }
+
+.date-btn .wd {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.date-btn .dd {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.date-btn .mo {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.date-btn.active {
+  border-color: var(--gold);
+  background: var(--gold-bg);
+}
+
+.date-btn.active .dd { color: var(--gold); }
+.date-btn.active .wd { color: var(--gold); }
+
+/* ── TIME GRID ───────────────────────────────────────────── */
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.time-btn {
+  padding: 12px 6px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.time-btn:active { transform: scale(0.96); }
+.time-btn.selected { border-color: var(--gold); background: var(--gold-bg); color: var(--gold); }
+.time-btn.booked   { opacity: 0.35; cursor: not-allowed; pointer-events: none; text-decoration: line-through; }
+.time-btn.past     { opacity: 0.3;  cursor: not-allowed; pointer-events: none; }
+
+/* ── DURATION SELECTOR ───────────────────────────────────── */
+.dur-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.dur-btn {
+  padding: 14px 8px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dur-btn:active { transform: scale(0.96); }
+
+.dur-btn .dh {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.dur-btn .dl {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.dur-btn .dp {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 4px;
+}
+
+.dur-btn.active {
+  border-color: var(--gold);
+  background: var(--gold-bg);
+}
+
+.dur-btn.active .dh { color: var(--gold); }
+.dur-btn.active .dl { color: var(--gold); }
+
+/* ── PRICE BOX ───────────────────────────────────────────── */
+.price-box {
+  display: none;
+  background: linear-gradient(135deg, #1A1D23 0%, #252830 100%);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.price-box.visible { display: block; }
+
+.price-amount {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.price-label {
+  font-size: 12px;
+  color: #8892A0;
+  margin-top: 6px;
+}
+
+.price-time {
+  font-size: 13px;
+  color: #FFF;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── INPUTS ──────────────────────────────────────────────── */
+.field { margin-bottom: 14px; }
+
+.field:last-child { margin-bottom: 0; }
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+
+.field input:focus { border-color: var(--gold); }
+.field input::placeholder { color: var(--text-muted); }
+
+/* ── GCASH CARD ──────────────────────────────────────────── */
+.gcash-card {
+  background: #0068FF;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+  color: #FFF;
+}
+
+.gcash-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.gcash-icon {
+  width: 40px;
+  height: 40px;
+  background: #FFF;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.gcash-title { font-size: 16px; font-weight: 800; }
+.gcash-sub   { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+.gcash-amount-display {
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gcash-amount-label { font-size: 12px; opacity: 0.85; }
+.gcash-amount-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #FFF;
+  min-width: 80px;
+  text-align: right;
+}
+
+.gcash-number-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.gcash-number-info .label { font-size: 11px; opacity: 0.75; margin-bottom: 2px; }
+.gcash-number-info .number {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.gcash-number-info .acct-name {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+.btn-copy-num {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: 8px;
+  color: #FFF;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-copy-num:active { background: rgba(255,255,255,0.35); }
+.btn-copy-num.copied { background: var(--green); }
+
+.gcash-qr {
+  background: #FFF;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.gcash-qr-placeholder {
+  width: 160px;
+  height: 160px;
+  background: #F4F5F7;
+  border: 2px dashed #CBD0D8;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.gcash-qr-img {
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
+}
+
+.gcash-qr-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.gcash-steps {
+  background: rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* ── UPLOAD ZONE ─────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  background: var(--surface);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--gold);
+  background: var(--gold-bg);
+}
+
+.upload-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-icon { font-size: 30px; margin-bottom: 8px; }
+.upload-text { font-size: 14px; font-weight: 600; color: var(--text-sub); }
+.upload-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+.upload-preview {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--green-bg);
+  border: 2px solid var(--green-bd);
+  border-radius: var(--radius-sm);
+}
+
+.upload-preview.visible { display: flex; }
+
+.upload-preview img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.upload-preview-info { flex: 1; min-width: 0; }
+.upload-preview-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-preview-size { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.btn-remove {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.upload-error {
+  display: none;
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.upload-error.visible { display: block; }
+
+/* ── VALIDATION ──────────────────────────────────────────── */
+.validation-msg {
+  display: none;
+  background: var(--red-bg);
+  border: 1px solid #FECACA;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+  margin-bottom: 12px;
+}
+
+.validation-msg.visible { display: block; }
+
+/* ── SUBMIT BUTTON ───────────────────────────────────────── */
+.btn-book {
+  width: 100%;
+  padding: 18px;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  border-radius: 50px;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  margin-top: 4px;
+}
+
+.btn-book:active { transform: scale(0.98); }
+.btn-book:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-book.loading { background: #9A7212; }
+
+/* ── SUCCESS SCREEN ──────────────────────────────────────── */
+#successScreen {
+  display: none;
+  padding: 24px 0 40px;
+}
+
+#successScreen.visible { display: block; }
+
+.success-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.success-banner {
+  background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+  padding: 28px 24px;
+  text-align: center;
+  color: #FFF;
+}
+
+.success-check {
+  font-size: 48px;
+  margin-bottom: 10px;
+  animation: pop 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.success-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.success-sub   { font-size: 13px; opacity: 0.85; }
+
+.booking-ref {
+  padding: 18px 20px;
+  background: var(--gold-bg);
+  border-bottom: 1px solid var(--gold-bd);
+  text-align: center;
+}
+
+.booking-ref-label { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+.booking-ref-id {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 1px;
+  margin-top: 4px;
+  font-family: monospace;
+}
+
+.booking-detail-list { padding: 16px 20px; }
+
+.booking-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  gap: 12px;
+}
+
+.booking-detail-row:last-child { border-bottom: none; }
+.booking-detail-label { color: var(--text-muted); flex-shrink: 0; }
+.booking-detail-value { font-weight: 700; text-align: right; }
+
+.pending-notice {
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #92400E;
+  line-height: 1.6;
+}
+
+.pending-notice strong { display: block; margin-bottom: 4px; }
+
+.btn-new-booking {
+  width: 100%;
+  padding: 16px;
+  background: var(--surface);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-new-booking:active { background: var(--bg); }
+
+/* ── STATUS CHECKER ──────────────────────────────────────── */
+.status-section {
+  margin-top: 8px;
+}
+
+.status-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.status-input-row input {
+  flex: 1;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  -webkit-appearance: none;
+}
+
+.status-input-row input:focus { border-color: var(--gold); }
+
+.btn-check {
+  padding: 14px 18px;
+  background: var(--text);
+  color: #FFF;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-check:active { opacity: 0.8; }
+
+#statusResult {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.status-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.status-card-header {
+  padding: 12px 14px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+
+.status-card-body { padding: 12px 14px; }
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  gap: 8px;
+}
+
+.status-row:last-child { border-bottom: none; }
+.status-row-label { color: var(--text-muted); }
+.status-row-value { font-weight: 600; text-align: right; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge-pending  { background: #FFF7ED; color: #92400E; }
+.badge-verified { background: #EFF6FF; color: #1D4ED8; }
+.badge-confirmed{ background: #F0FDF4; color: #15803D; }
+.badge-completed{ background: #F5F3FF; color: #6D28D9; }
+.badge-cancelled{ background: #F9FAFB; color: #6B7280; }
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 24px 20px;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (min-width: 480px) {
+  .container { padding-top: 24px; }
+}
+
+/* ── OPTIONAL: no-select on tap targets ─────────────────── */
+.date-btn, .time-btn, .dur-btn, .btn-book, .btn-copy-num, .btn-check {
+  -webkit-user-select: none;
+  user-select: none;
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-logo">🏓 ALRAJJ <span>PICKLEBALL</span></div>
+  <div class="site-tagline">Private Pickleball Court · Marawi City</div>
+</header>
+
+<div class="container">
+
+  <!-- ══ BOOKING FORM ══════════════════════════════════════ -->
+  <div id="bookingForm">
+
+    <!-- STEP 1: DATE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step" id="step1Dot">1</div>
+        <div>
+          <div class="card-title">Select Date</div>
+          <div class="card-subtitle">Next 14 days available</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="date-strip" id="dateStrip"></div>
+      </div>
+    </div>
+
+    <!-- STEP 2: TIME -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step" id="step2Dot">2</div>
+        <div>
+          <div class="card-title">Select Start Time</div>
+          <div class="card-subtitle" id="timeSubtitle">Pick a date first</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="time-grid" id="timeGrid"></div>
+      </div>
+    </div>
+
+    <!-- STEP 3: DURATION -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step" id="step3Dot">3</div>
+        <div>
+          <div class="card-title">Duration</div>
+          <div class="card-subtitle">How long will you play?</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="dur-row">
+          <div class="dur-btn active" data-hours="1" onclick="selectDuration(1)">
+            <div class="dh">1</div>
+            <div class="dl">HOUR</div>
+            <div class="dp" id="dur-price-1">—</div>
+          </div>
+          <div class="dur-btn" data-hours="2" onclick="selectDuration(2)">
+            <div class="dh">2</div>
+            <div class="dl">HOURS</div>
+            <div class="dp" id="dur-price-2">—</div>
+          </div>
+          <div class="dur-btn" data-hours="3" onclick="selectDuration(3)">
+            <div class="dh">3</div>
+            <div class="dl">HOURS</div>
+            <div class="dp" id="dur-price-3">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICE BOX (shows after time + duration selected) -->
+    <div class="price-box" id="priceBox">
+      <div class="price-amount" id="priceAmount">₱—</div>
+      <div class="price-label" id="priceLabel">Select time and duration</div>
+      <div class="price-time" id="priceTime"></div>
+    </div>
+
+    <!-- STEP 4: DETAILS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step" id="step4Dot">4</div>
+        <div>
+          <div class="card-title">Your Details</div>
+          <div class="card-subtitle">How do we reach you?</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label for="guestName">Full Name *</label>
+          <input type="text" id="guestName" placeholder="e.g. Ahmad Khalid"
+                 autocomplete="name" inputmode="text"
+                 oninput="clearError()" />
+        </div>
+        <div class="field">
+          <label for="guestPhone">Mobile Number *</label>
+          <input type="tel" id="guestPhone" placeholder="09XXXXXXXXX"
+                 autocomplete="tel" inputmode="tel"
+                 oninput="clearError()" />
+        </div>
+        <div class="field">
+          <label for="guestEmail">Email <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+          <input type="email" id="guestEmail" placeholder="you@email.com"
+                 autocomplete="email" inputmode="email" />
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: GCASH PAYMENT -->
+    <div class="gcash-card">
+      <div class="gcash-top">
+        <div class="gcash-icon">💙</div>
+        <div>
+          <div class="gcash-title">Pay via GCash</div>
+          <div class="gcash-sub">Send to confirm your slot</div>
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="gcash-amount-display">
+        <div class="gcash-amount-label">Amount to Send</div>
+        <div class="gcash-amount-value" id="gcashAmount">₱—</div>
+      </div>
+
+      <!-- Number -->
+      <div class="gcash-number-row">
+        <div class="gcash-number-info">
+          <div class="label">GCash Number</div>
+          <div class="number">09195198324</div>
+          <div class="acct-name">JE**N A.</div>
+        </div>
+        <button class="btn-copy-num" id="copyBtn" onclick="copyNumber()">Copy</button>
+      </div>
+
+      <!-- QR Code -->
+      <div class="gcash-qr" id="gcashQrWrap">
+        <img class="gcash-qr-img"
+             src="https://raw.githubusercontent.com/abedinmyjanah-stack/alrajj-pickleball/main/gcash-qr.png"
+             alt="GCash QR Code" />
+        <div class="gcash-qr-label">Scan with GCash app</div>
+      </div>
+
+      <!-- Steps -->
+      <div class="gcash-steps">
+        <strong>1.</strong> Open GCash → Send Money<br>
+        <strong>2.</strong> Enter <strong>09195198324</strong><br>
+        <strong>3.</strong> Enter the exact amount shown above<br>
+        <strong>4.</strong> Screenshot the confirmation
+      </div>
+    </div>
+
+    <!-- STEP 6: SCREENSHOT (optional) -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step" id="step5Dot">5</div>
+        <div>
+          <div class="card-title">Payment Screenshot</div>
+          <div class="card-subtitle">Optional — speeds up verification</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="paymentFile" accept=".jpg,.jpeg,.png,.webp"
+                 onchange="handleFileSelect(event)" />
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">Tap to upload screenshot</div>
+          <div class="upload-hint">JPG, PNG or WEBP · max 10 MB</div>
+        </div>
+        <div class="upload-preview" id="uploadPreview">
+          <img id="uploadPreviewImg" src="" alt="Preview" />
+          <div class="upload-preview-info">
+            <div class="upload-preview-name" id="uploadFileName">—</div>
+            <div class="upload-preview-size" id="uploadFileSize"></div>
+          </div>
+          <button class="btn-remove" onclick="removeUpload()" aria-label="Remove">✕</button>
+        </div>
+        <div class="upload-error" id="uploadError"></div>
+      </div>
+    </div>
+
+    <!-- VALIDATION -->
+    <div class="validation-msg" id="validationMsg"></div>
+
+    <!-- SUBMIT -->
+    <button class="btn-book" id="bookBtn" onclick="submitBooking()">
+      Reserve My Slot →
+    </button>
+
+  </div><!-- /bookingForm -->
+
+  <!-- ══ SUCCESS SCREEN ════════════════════════════════════ -->
+  <div id="successScreen">
+    <div class="success-card">
+      <div class="success-banner">
+        <div class="success-check">✅</div>
+        <div class="success-title">Booking Received!</div>
+        <div class="success-sub">We'll confirm after payment verification</div>
+      </div>
+
+      <div class="booking-ref">
+        <div class="booking-ref-label">Your Booking ID</div>
+        <div class="booking-ref-id" id="refCode">APC-—</div>
+      </div>
+
+      <div class="booking-detail-list">
+        <div class="booking-detail-row">
+          <span class="booking-detail-label">Name</span>
+          <span class="booking-detail-value" id="confName">—</span>
+        </div>
+        <div class="booking-detail-row">
+          <span class="booking-detail-label">Date</span>
+          <span class="booking-detail-value" id="confDate">—</span>
+        </div>
+        <div class="booking-detail-row">
+          <span class="booking-detail-label">Time</span>
+          <span class="booking-detail-value" id="confTime">—</span>
+        </div>
+        <div class="booking-detail-row">
+          <span class="booking-detail-label">Duration</span>
+          <span class="booking-detail-value" id="confDuration">—</span>
+        </div>
+        <div class="booking-detail-row">
+          <span class="booking-detail-label">Total Paid</span>
+          <span class="booking-detail-value" id="confTotal" style="color:var(--gold);font-size:16px;">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pending-notice">
+      <strong>⏳ What happens next?</strong>
+      We'll verify your GCash payment and send confirmation via Messenger.
+      Use your Booking ID above to check your status anytime.
+    </div>
+
+    <button class="btn-new-booking" onclick="resetBooking()">+ Make Another Booking</button>
+  </div>
+
+  <!-- ══ STATUS CHECKER ════════════════════════════════════ -->
+  <div class="card status-section" style="margin-top:8px;">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Check Booking Status</div>
+        <div class="card-subtitle">Enter your Booking ID</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="status-input-row">
+        <input type="text" id="statusRefInput" placeholder="APC-20260715-001"
+               maxlength="20" autocomplete="off" autocapitalize="characters"
+               onkeydown="if(event.key==='Enter') checkStatus()" />
+        <button class="btn-check" onclick="checkStatus()">Check</button>
+      </div>
+      <div id="statusResult"></div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer class="site-footer">
+  🏓 Alrajj Private Pickleball Court<br>
+  Brgy. Paridi, Marawi City<br>
+  Operating hours: 9:00 AM – 10:00 PM
+</footer>
+
+<script>
+'use strict';
+
+// ── CONFIGURATION ─────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL1zXm8UaVVQIUxcbX2koa8W_HsxiQZ7IoPIIUxtW_EjOQW-AsDiFEc7pcKePJCuTj/exec';
+const HOURS_OPEN  = 9;
+const HOURS_CLOSE = 22;
+const GCASH_NUMBER = '09195198324';
+
+// ── STATE ─────────────────────────────────────────────────────
+let selectedDate      = null;
+let selectedHour      = null;
+let selectedDuration  = 1;
+let bookedSlots       = new Set();
+let blockedSlots      = new Set();
+let uploadedFileBase64 = null;
+let uploadedFileName   = null;
+
+// ── UTILITIES ─────────────────────────────────────────────────
+function isWeekend(dateStr) {
+  return [0, 6].includes(new Date(dateStr + 'T12:00:00').getDay());
+}
+function isOffPeak(h) { return h >= 9  && h < 17; }
+function isPeak(h)    { return h >= 17 && h <= 21; }
+
+function getHourlyRate(dateStr, h) {
+  if (isWeekend(dateStr)) return { rate: 200, label: 'Weekend Rate' };
+  if (isPeak(h))          return { rate: 200, label: 'Peak Rate' };
+  if (isOffPeak(h))       return { rate: 150, label: 'Off-Peak Rate' };
+  return                         { rate: 150, label: 'Regular Rate' };
+}
+
+function computePrice(dateStr, startHour, hours) {
+  if (!dateStr || startHour === null || !hours) return null;
+  const hoursArr  = Array.from({ length: hours }, (_, i) => startHour + i);
+  const breakdown = hoursArr.map(h => getHourlyRate(dateStr, h));
+  const total     = breakdown.reduce((s, b) => s + b.rate, 0);
+  const endHour   = startHour + hours;
+  const unique    = [...new Set(breakdown.map(b => b.rate))];
+  const label     = unique.length === 1
+    ? breakdown[0].label + ' · ₱' + unique[0] + '/hr × ' + hours + ' hr' + (hours > 1 ? 's' : '')
+    : 'Mixed: ' + breakdown.map(b => '₱' + b.rate).join(' + ');
+  return { total, hours, startHour, endHour, label, breakdown, hoursArr };
+}
+
+function fmt(h) {
+  if (h === 0 || h === 24) return '12:00 AM';
+  if (h === 12)            return '12:00 PM';
+  return h < 12 ? (h + ':00 AM') : ((h - 12) + ':00 PM');
+}
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── DATE STRIP ────────────────────────────────────────────────
+function buildDateStrip() {
+  const strip = document.getElementById('dateStrip');
+  strip.innerHTML = '';
+  const today  = new Date();
+  const days   = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  for (let i = 0; i < 14; i++) {
+    const d       = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dateStr = d.getFullYear() + '-' +
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0');
+
+    const btn = document.createElement('button');
+    btn.className = 'date-btn' + (i === 0 ? ' active' : '');
+    btn.setAttribute('aria-label', days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()]);
+    btn.innerHTML = `<span class="wd">${days[d.getDay()]}</span>
+                     <span class="dd">${d.getDate()}</span>
+                     <span class="mo">${months[d.getMonth()]}</span>`;
+    btn.onclick = () => selectDate(dateStr, btn);
+    strip.appendChild(btn);
+  }
+  // Auto-select today
+  selectDate(
+    today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0'),
+    strip.querySelector('.date-btn')
+  );
+}
+
+function selectDate(dateStr, btn) {
+  selectedDate = dateStr;
+  selectedHour = null;
+  document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const d        = new Date(dateStr + 'T12:00:00');
+  const subtitle = d.toLocaleDateString('en-PH', { weekday:'long', month:'long', day:'numeric' });
+  document.getElementById('timeSubtitle').textContent = subtitle;
+  buildTimeGrid();
+  updatePrice();
+}
+
+// ── TIME GRID ─────────────────────────────────────────────────
+function buildTimeGrid() {
+  const grid  = document.getElementById('timeGrid');
+  grid.innerHTML = '';
+  const now   = new Date();
+  const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  const nowH  = now.getHours();
+
+  for (let h = HOURS_OPEN; h < HOURS_CLOSE; h++) {
+    const slotKey  = selectedDate + '-' + h;
+    const isBooked = bookedSlots.has(slotKey) || blockedSlots.has(slotKey);
+    const isPastHr = selectedDate === today && h <= nowH;
+
+    const btn = document.createElement('button');
+    btn.className = 'time-btn' + (isBooked ? ' booked' : '') + (isPastHr && !isBooked ? ' past' : '');
+    btn.textContent = fmt(h);
+    btn.setAttribute('aria-label', fmt(h) + (isBooked ? ' (unavailable)' : ''));
+    if (!isBooked && !isPastHr) btn.onclick = () => selectHour(h, btn);
+    grid.appendChild(btn);
+  }
+}
+
+function selectHour(h, btn) {
+  selectedHour = h;
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  validateDurationOverflow();
+  updatePrice();
+  // Smooth-scroll to duration row
+  document.querySelector('.dur-row')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── DURATION ─────────────────────────────────────────────────
+function selectDuration(hours) {
+  selectedDuration = hours;
+  document.querySelectorAll('.dur-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.hours) === hours);
+  });
+  validateDurationOverflow();
+  updatePrice();
+}
+
+function validateDurationOverflow() {
+  if (selectedHour === null) return;
+  const end = selectedHour + selectedDuration;
+  if (end > HOURS_CLOSE) {
+    const maxDur = HOURS_CLOSE - selectedHour;
+    if (maxDur < 1) { selectedHour = null; buildTimeGrid(); return; }
+    selectDuration(maxDur);
+  }
+}
+
+// ── PRICE ─────────────────────────────────────────────────────
+function updatePrice() {
+  const priceBox    = document.getElementById('priceBox');
+  const gcashAmount = document.getElementById('gcashAmount');
+
+  // Update per-duration prices
+  for (let d = 1; d <= 3; d++) {
+    const el = document.getElementById('dur-price-' + d);
+    if (selectedDate && selectedHour !== null) {
+      const p = computePrice(selectedDate, selectedHour, d);
+      el.textContent = p ? '₱' + p.total : '—';
+    } else {
+      el.textContent = '—';
+    }
+  }
+
+  if (!selectedDate || selectedHour === null) {
+    priceBox.classList.remove('visible');
+    gcashAmount.textContent = '₱—';
+    return;
+  }
+
+  const pricing = computePrice(selectedDate, selectedHour, selectedDuration);
+  if (!pricing) { priceBox.classList.remove('visible'); return; }
+
+  document.getElementById('priceAmount').textContent = '₱' + pricing.total.toLocaleString();
+  document.getElementById('priceLabel').textContent  = pricing.label;
+  document.getElementById('priceTime').textContent   = fmt(pricing.startHour) + ' – ' + fmt(pricing.endHour);
+  priceBox.classList.add('visible');
+  gcashAmount.textContent = '₱' + pricing.total.toLocaleString();
+}
+
+// ── COPY GCASH NUMBER ─────────────────────────────────────────
+function copyNumber() {
+  const btn = document.getElementById('copyBtn');
+  const copy = () => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2500);
+  };
+  if (navigator.clipboard) navigator.clipboard.writeText(GCASH_NUMBER).then(copy).catch(() => { fallbackCopy(GCASH_NUMBER, copy); });
+  else fallbackCopy(GCASH_NUMBER, copy);
+}
+
+function fallbackCopy(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;top:-9999px;opacity:0;';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); if (cb) cb(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+// ── FILE UPLOAD ───────────────────────────────────────────────
+function handleFileSelect(event) {
+  const file  = event.target.files[0];
+  const errEl = document.getElementById('uploadError');
+  errEl.classList.remove('visible');
+  if (!file) return;
+
+  if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+    errEl.textContent = 'Please upload a JPG, PNG or WEBP image.';
+    errEl.classList.add('visible'); return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    errEl.textContent = 'File too large — maximum 10 MB.';
+    errEl.classList.add('visible'); return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    uploadedFileBase64 = dataUrl.split(',')[1];
+    uploadedFileName   = file.name;
+    document.getElementById('uploadPreviewImg').src = dataUrl;
+    document.getElementById('uploadFileName').textContent  = file.name;
+    document.getElementById('uploadFileSize').textContent  = (file.size/1024).toFixed(0) + ' KB';
+    document.getElementById('uploadPreview').classList.add('visible');
+    document.getElementById('uploadZone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeUpload() {
+  uploadedFileBase64 = null; uploadedFileName = null;
+  document.getElementById('uploadPreviewImg').src = '';
+  document.getElementById('uploadPreview').classList.remove('visible');
+  document.getElementById('uploadZone').style.display = 'block';
+  document.getElementById('paymentFile').value = '';
+}
+
+// ── VALIDATION ────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('validationMsg');
+  el.textContent = msg; el.classList.add('visible');
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function clearError() {
+  document.getElementById('validationMsg').classList.remove('visible');
+}
+
+// ── SUBMIT BOOKING ────────────────────────────────────────────
+async function submitBooking() {
+  clearError();
+
+  if (!selectedDate)        { showError('Please select a date.');       return; }
+  if (selectedHour === null){ showError('Please select a start time.'); return; }
+
+  const name  = document.getElementById('guestName').value.trim();
+  const phone = document.getElementById('guestPhone').value.trim();
+  const email = document.getElementById('guestEmail').value.trim();
+
+  if (!name)  { showError('Please enter your full name.');     document.getElementById('guestName').focus();  return; }
+  if (!phone) { showError('Please enter your mobile number.'); document.getElementById('guestPhone').focus(); return; }
+  if (!/^09\d{9}$/.test(phone.replace(/\s/g,''))) {
+    showError('Please enter a valid Philippine mobile number (e.g. 09XXXXXXXXX).');
+    document.getElementById('guestPhone').focus(); return;
+  }
+
+  const pricing = computePrice(selectedDate, selectedHour, selectedDuration);
+  if (!pricing) { showError('Could not calculate price. Please reselect your slot.'); return; }
+
+  if (pricing.endHour > HOURS_CLOSE) {
+    showError('Booking would end after closing time. Please choose an earlier start or shorter duration.');
+    return;
+  }
+
+  const btn = document.getElementById('bookBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…'; btn.classList.add('loading');
+
+  const payload = {
+    name,
+    phone:         phone.replace(/\s/g,''),
+    notes:         email ? 'Email: ' + email : '',
+    date:          selectedDate,
+    startHour:     pricing.startHour,
+    durationHours: pricing.hours,
+    endHour:       pricing.endHour,
+    totalHours:    pricing.hours,
+    allHours:      pricing.hoursArr,
+    sessionLabel:  pricing.hours + ' hr' + (pricing.hours > 1 ? 's' : ''),
+    rateLabel:     pricing.label,
+    paddles:       0,
+    total:         pricing.total,
+    payment:       'GCash',
+    imageBase64:   uploadedFileBase64,
+    imageName:     uploadedFileName,
+    bookingSource: 'Website',
+  };
+
+  let ref = 'APC-' + String(Date.now()).slice(-6);
+
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST', credentials: 'omit', redirect: 'follow',
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.success) {
+      showError(data.error || 'Something went wrong. Please try again.');
+      btn.disabled = false; btn.textContent = 'Reserve My Slot →'; btn.classList.remove('loading');
+      return;
+    }
+    ref = data.ref || ref;
+  } catch (err) {
+    // Still show success if submission may have gone through
+    console.warn('Fetch error:', err.message);
+  }
+
+  // Populate success screen
+  const dateObj = new Date(selectedDate + 'T12:00:00');
+  const dateStr = dateObj.toLocaleDateString('en-PH', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  document.getElementById('refCode').textContent      = ref;
+  document.getElementById('confName').textContent     = name;
+  document.getElementById('confDate').textContent     = dateStr;
+  document.getElementById('confTime').textContent     = fmt(pricing.startHour) + ' – ' + fmt(pricing.endHour);
+  document.getElementById('confDuration').textContent = pricing.hours + ' hour' + (pricing.hours > 1 ? 's' : '');
+  document.getElementById('confTotal').textContent    = '₱' + pricing.total.toLocaleString();
+
+  document.getElementById('bookingForm').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+// ── RESET ─────────────────────────────────────────────────────
+function resetBooking() {
+  selectedHour      = null;
+  selectedDuration  = 1;
+  uploadedFileBase64 = null;
+  uploadedFileName   = null;
+
+  document.getElementById('guestName').value  = '';
+  document.getElementById('guestPhone').value = '';
+  document.getElementById('guestEmail').value = '';
+  document.getElementById('validationMsg').classList.remove('visible');
+  removeUpload();
+
+  document.getElementById('bookingForm').style.display   = 'block';
+  document.getElementById('successScreen').style.display = 'none';
+
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.toggle('active', b.dataset.hours === '1'));
+  document.getElementById('priceBox').classList.remove('visible');
+  document.getElementById('gcashAmount').textContent = '₱—';
+
+  buildDateStrip();
+  window.scrollTo(0, 0);
+}
+
+// ── STATUS CHECKER ────────────────────────────────────────────
+function checkStatus() {
+  const ref = document.getElementById('statusRefInput').value.trim().toUpperCase();
+  const el  = document.getElementById('statusResult');
+  if (!ref) return;
+
+  el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">Checking…</div>';
+
+  const url = APPS_SCRIPT_URL + '?action=checkStatus&ref=' + encodeURIComponent(ref);
+  fetch(url, { method:'GET', credentials:'omit', redirect:'follow' })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.found) {
+        el.innerHTML = '<div style="color:var(--red);font-size:13px;padding:8px 0;">Booking not found. Check your Booking ID and try again.</div>';
+        return;
+      }
+      const statusMap = {
+        'Pending Payment Verification': ['badge-pending',  '⏳ Pending Verification'],
+        'Payment Verified':             ['badge-verified', '✔️ Payment Verified'],
+        'Confirmed':                    ['badge-confirmed','✅ Confirmed'],
+        'Completed':                    ['badge-completed','🏆 Completed'],
+        'Cancelled':                    ['badge-cancelled','🚫 Cancelled'],
+        'Rejected':                     ['badge-cancelled','❌ Rejected'],
+        'No Show':                      ['badge-cancelled','⚠️ No Show'],
+      };
+      const [cls, lbl] = statusMap[data.status] || ['badge-pending', esc(data.status)];
+      el.innerHTML = `<div class="status-card">
+        <div class="status-card-header">
+          Booking <span style="font-family:monospace;">${esc(data.ref)}</span>
+          <span class="badge ${esc(cls)}" style="float:right;">${lbl}</span>
+        </div>
+        <div class="status-card-body">
+          <div class="status-row"><span class="status-row-label">Name</span><span class="status-row-value">${esc(data.name)}</span></div>
+          <div class="status-row"><span class="status-row-label">Date</span><span class="status-row-value">${esc(data.date)}</span></div>
+          <div class="status-row"><span class="status-row-label">Time</span><span class="status-row-value">${esc(data.time)}</span></div>
+          <div class="status-row"><span class="status-row-label">Amount</span><span class="status-row-value">₱${parseFloat(data.total||0).toLocaleString()}</span></div>
+        </div>
+      </div>`;
+    })
+    .catch(() => {
+      el.innerHTML = '<div style="color:var(--red);font-size:13px;padding:8px 0;">Could not check status. Please try again.</div>';
+    });
+}
+
+// ── FETCH SLOTS ───────────────────────────────────────────────
+async function fetchSlots() {
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=getSlots', {
+      method: 'GET', credentials: 'omit', redirect: 'follow',
+    });
+    const data = await res.json();
+    if (data.booked)  data.booked.forEach(s  => bookedSlots.add(s));
+    if (data.blocked) data.blocked.forEach(s => blockedSlots.add(s));
+    buildTimeGrid(); // Rebuild with live slot data
+  } catch(err) {
+    console.warn('Could not load slots:', err.message);
+    // Still render time grid, just without real-time booked info
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+buildDateStrip();
+fetchSlots();
+</script>
+</body>
+</html>
